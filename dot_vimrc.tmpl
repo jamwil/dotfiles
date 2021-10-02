@@ -1,0 +1,45 @@
+set number
+
+filetype indent on
+set autoindent
+
+set wrap!
+au FileType text set wrap
+au FileType text set linebreak
+
+set showmatch
+
+nnoremap j gj
+nnoremap k gk
+nnoremap <C-s-tab> :tabprevious<CR>
+nnoremap <C-tab> :tabnext<CR>
+
+colorscheme nord
+
+" Indents word-wrapped lines as much as the 'parent' line
+set breakindent
+
+" Ensures word-wrap does not split words
+set formatoptions=l
+set lbr
+
+" Set the GUI font
+{{ if (eq .chezmoi.os "darwin") -}}
+set guifont=Monaco:h13
+{{- end }}
+
+" Load the official python vimrc and override line length
+source ~/.vim/.python-vimrc
+au BufRead,BufNewFile *.py,*.pyw,*.c,*.h set textwidth=88
+set encoding=utf-8
+let python_highlight_all=1
+syntax on
+set foldmethod=indent
+
+" Add bracket completions
+au BufRead,BufNewFile *.py,*.pyw,*.c,*.h inoremap ( ()<left>
+au BufRead,BufNewFile *.py,*.pyw,*.c,*.h inoremap [ []<left>
+au BufRead,BufNewFile *.py,*.pyw,*.c,*.h inoremap { {}<left>
+au BufRead,BufNewFile *.py,*.pyw,*.c,*.h inoremap <expr> ) strpart(getline('.'), col('.')-1, 1) == ")" ? "\<Right>" : ")"
+au BufRead,BufNewFile *.py,*.pyw,*.c,*.h inoremap <expr> ] strpart(getline('.'), col('.')-1, 1) == "]" ? "\<Right>" : "]"
+au BufRead,BufNewFile *.py,*.pyw,*.c,*.h inoremap <expr> } strpart(getline('.'), col('.')-1, 1) == "}" ? "\<Right>" : "}"

@@ -1,0 +1,12 @@
+PS1="%~ » "
+alias ll='ls -alhF'
+
+{{ if (and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64" )) -}}
+alias ros='arch -x86_64'
+alias rbrew='arch -x86_64 /usr/local/bin/brew'
+{{- end }}
+
+export GPG_TTY=$(tty)
+
+# Created by `userpath` on 2021-02-15 18:51:20
+export PATH="$PATH:/Users/jamwil/.local/bin"
