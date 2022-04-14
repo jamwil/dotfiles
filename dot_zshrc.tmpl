@@ -1,9 +1,16 @@
 PS1="%~ » "
 alias ll='ls -alhF'
+alias 'logg'='git log --oneline --graph --all'
 
 {{ if (and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64" )) -}}
+# Rosland aliases
 alias ros='arch -x86_64'
 alias rbrew='arch -x86_64 /usr/local/bin/brew'
+
+# pymssql on arm64
+export LDFLAGS="-L/opt/homebrew/opt/freetds/lib -L/opt/homebrew/opt/openssl@3/lib"
+export CFLAGS="-I/opt/homebrew/opt/freetds/include"
+export CPPFLAGS="-I/opt/homebrew/opt/openssl@3/include"
 {{- end }}
 
 export GPG_TTY=$(tty)
