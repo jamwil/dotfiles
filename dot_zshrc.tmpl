@@ -11,6 +11,9 @@ alias rbrew='arch -x86_64 /usr/local/bin/brew'
 export LDFLAGS="-L/opt/homebrew/opt/freetds/lib -L/opt/homebrew/opt/openssl@3/lib"
 export CFLAGS="-I/opt/homebrew/opt/freetds/include"
 export CPPFLAGS="-I/opt/homebrew/opt/openssl@3/include"
+
+# openjdk
+export PATH="$PATH:/opt/homebrew/opt/openjdk/bin"
 {{- end }}
 
 export GPG_TTY=$(tty)
@@ -19,7 +22,5 @@ export GPG_TTY=$(tty)
 export PATH="$PATH:/Users/jamwil/.local/bin"
 
 eval "$(pyenv init -)"
-
-export PATH="$PATH:/opt/homebrew/opt/openjdk/bin"
 
 export RICH_THEME=monokai
