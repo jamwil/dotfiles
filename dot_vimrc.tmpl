@@ -44,3 +44,6 @@ au BufRead,BufNewFile *.py,*.pyw,*.c,*.h inoremap { {}<left>
 au BufRead,BufNewFile *.py,*.pyw,*.c,*.h inoremap <expr> ) strpart(getline('.'), col('.')-1, 1) == ")" ? "\<Right>" : ")"
 au BufRead,BufNewFile *.py,*.pyw,*.c,*.h inoremap <expr> ] strpart(getline('.'), col('.')-1, 1) == "]" ? "\<Right>" : "]"
 au BufRead,BufNewFile *.py,*.pyw,*.c,*.h inoremap <expr> } strpart(getline('.'), col('.')-1, 1) == "}" ? "\<Right>" : "}"
+
+" Set the filetype to text if we enter a buffer with no filetype
+autocmd BufEnter * if &filetype == "" | setlocal ft=text | endif
