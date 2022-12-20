@@ -1,6 +1,11 @@
 PS1="%~ » "
 alias ll='ls -alhF'
 
+# Homebrew
+{{ if (eq .chezmoi.os "darwin") -}}
+eval $(/opt/homebrew/bin/brew shellenv)
+{{- end }}
+
 {{ if (and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64" )) -}}
 # Rosland aliases
 alias ros='arch -x86_64'
@@ -18,8 +23,14 @@ export PATH="$PATH:/opt/homebrew/opt/openjdk/bin"
 export PATH="$PATH:/Users/jamwil/.local/bin"
 {{- end }}
 
+# Miscellaneous
 export GPG_TTY=$(tty)
 export RICH_THEME=monokai
 
+# pyenv
+export PATH="$HOME/.pyenv/bin:$PATH"
 eval "$(pyenv init -)"
+
+# chezmoi
+export PATH="$HOME/bin:$PATH"
 
