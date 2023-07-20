@@ -1,4 +1,12 @@
-PS1="%~ » "
+(( ${+commands[direnv]} )) && emulate zsh -c "$(direnv export zsh)"
+
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# https://github.com/romkatv/powerlevel10k#how-do-i-initialize-direnv-when-using-instant-prompt
+(( ${+commands[direnv]} )) && emulate zsh -c "$(direnv hook zsh)"
+
 alias ll='ls -alhF'
 
 # Homebrew
@@ -24,11 +32,8 @@ export PATH="$PATH:/Users/jamwil/.local/bin"
 {{- end }}
 
 # Miscellaneous
-export GPG_TTY=$(tty)
+export GPG_TTY=$TTY
 export RICH_THEME=monokai
-
-# direnv
-eval "$(direnv hook zsh)"
 
 # pyenv
 export PATH="$HOME/.pyenv/bin:$PATH"
@@ -43,3 +48,7 @@ export PATH="$PATH:/Users/jamwil/go/bin"
 # iterm2
 test -e /Users/jamwil/.iterm2_shell_integration.zsh && source /Users/jamwil/.iterm2_shell_integration.zsh || true
 
+source ~/powerlevel10k/powerlevel10k.zsh-theme
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh

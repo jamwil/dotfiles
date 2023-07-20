@@ -9,6 +9,7 @@ The following is required these dotfiles to run:
 - chezmoi
 - direnv
 - homebrew (on mac)
+- powerlevel10k
 - pyenv
 - sqlite3
 - vim
