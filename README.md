@@ -4,11 +4,13 @@ I'm clearly a minimalist ⚫️🗃. These are managed using the amazing [chezmo
 
 ## Essential software
 
-The following is required these dotfiles to run:
+The following is required for these dotfiles to work properly (including aliases):
 
 - chezmoi
+- cloc
 - direnv
 - homebrew (on mac)
+- lsd
 - powerlevel10k
 - pyenv
 - sqlite3

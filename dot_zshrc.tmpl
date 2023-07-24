@@ -7,7 +7,8 @@ fi
 # https://github.com/romkatv/powerlevel10k#how-do-i-initialize-direnv-when-using-instant-prompt
 (( ${+commands[direnv]} )) && emulate zsh -c "$(direnv hook zsh)"
 
-alias ll='ls -alhF'
+alias ll='lsd -alhF'
+alias cloc='cloc --vcs=git'
 
 # Homebrew
 {{ if (eq .chezmoi.os "darwin") -}}
