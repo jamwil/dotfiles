@@ -6,6 +6,7 @@ I'm clearly a minimalist ⚫️🗃. These are managed using the amazing [chezmo
 
 The following is required for these dotfiles to work properly (including aliases):
 
+- atuin
 - chezmoi
 - cloc
 - direnv
