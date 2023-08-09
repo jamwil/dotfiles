@@ -7,6 +7,9 @@ fi
 # https://github.com/romkatv/powerlevel10k#how-do-i-initialize-direnv-when-using-instant-prompt
 (( ${+commands[direnv]} )) && emulate zsh -c "$(direnv hook zsh)"
 
+# vi mode
+# bindkey -v
+
 alias ll='lsd -alhF'
 alias cloc='cloc --vcs=git'
 alias tailscale='/Applications/Tailscale.app/Contents/MacOS/Tailscale'
@@ -38,7 +41,8 @@ export GPG_TTY=$TTY
 export RICH_THEME=monokai
 
 # pyenv
-export PATH="$HOME/.pyenv/bin:$PATH"
+export PYENV_ROOT="$HOME/.pyenv"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 
 # chezmoi
