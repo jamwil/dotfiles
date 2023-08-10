@@ -17,7 +17,19 @@ The following is required for these dotfiles to work properly (including aliases
 - sqlite3
 - vim
 
-The following is not mandatory for dotfiles but is a helpful checklist when setting up a new computer:
+### Ubuntu setup script
+
+Run this command on a fresh ubuntu install:
+
+```bash
+bash <(curl https://raw.githubusercontent.com/jamwil/dotfiles/main/bootstrap-ubuntu.sh)
+```
+
+Then, optionally set up Atuin sync and proceed to the non-mandatory apps below.
+
+## Other applications
+
+The following is not mandatory for dotfiles but is a helpful checklist when setting up a new mac:
 
 - 1Password
 - AlDente
