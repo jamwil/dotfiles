@@ -7,18 +7,16 @@ fi
 # https://github.com/romkatv/powerlevel10k#how-do-i-initialize-direnv-when-using-instant-prompt
 (( ${+commands[direnv]} )) && emulate zsh -c "$(direnv hook zsh)"
 
-# vi mode
-# bindkey -v
-
 alias ll='lsd -alhF'
 alias cloc='cloc --vcs=git'
-alias tailscale='/Applications/Tailscale.app/Contents/MacOS/Tailscale'
 
-# Homebrew
+# Mac-specific
 {{ if (eq .chezmoi.os "darwin") -}}
 eval $(/opt/homebrew/bin/brew shellenv)
+alias tailscale='/Applications/Tailscale.app/Contents/MacOS/Tailscale'
 {{- end }}
 
+## M1 Mac-specific
 {{ if (and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64" )) -}}
 # Rosland aliases
 alias ros='arch -x86_64'
@@ -33,7 +31,7 @@ export CPPFLAGS="-I/opt/homebrew/opt/openssl@3/include"
 export PATH="$PATH:/opt/homebrew/opt/openjdk/bin"
 
 # Created by `userpath` on 2021-02-15 18:51:20
-export PATH="$PATH:/Users/jamwil/.local/bin"
+export PATH="$PATH:$HOME/.local/bin"
 {{- end }}
 
 # Miscellaneous
@@ -48,11 +46,14 @@ eval "$(pyenv init -)"
 # chezmoi
 export PATH="$HOME/bin:$PATH"
 
+# cargo
+export PATH="$PATH:$HOME/.cargo/bin"
+
 # go
-export PATH="$PATH:/Users/jamwil/go/bin"
+export PATH="$PATH:$HOME/go/bin"
 
 # iterm2
-test -e /Users/jamwil/.iterm2_shell_integration.zsh && source /Users/jamwil/.iterm2_shell_integration.zsh || true
+test -e $HOME/.iterm2_shell_integration.zsh && source $HOME/.iterm2_shell_integration.zsh || true
 
 # atuin
 eval "$(atuin init zsh)"
