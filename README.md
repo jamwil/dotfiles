@@ -25,6 +25,8 @@ Run this command on a fresh ubuntu install:
 bash <(curl https://raw.githubusercontent.com/jamwil/dotfiles/main/bootstrap-ubuntu.sh)
 ```
 
+Test zsh and if everything looks good, change the default shell with `chsh -s $(which zsh)`.
+
 Then, optionally set up Atuin sync and proceed to the non-mandatory apps below.
 
 ## Other applications
