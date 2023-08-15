@@ -10,6 +10,7 @@ The following is required for these dotfiles to work properly (including aliases
 - chezmoi
 - cloc
 - direnv
+- git
 - homebrew (on mac)
 - lsd
 - powerlevel10k
@@ -38,8 +39,6 @@ The following is not mandatory for dotfiles but is a helpful checklist when sett
 - dash
 - docker (OrbStack on mac)
 - exiftool
-- git
-- git-credential-manager-core
 - gnupg
 - hex-fiend
 - iTerm2
@@ -50,11 +49,10 @@ The following is not mandatory for dotfiles but is a helpful checklist when sett
 - netnewswire
 - Parallels Desktop
 - Sparrow
-- 1password & 1password CLI
 - pipx
-- pyenv
 - signal
 - Tailscale
+- tealdeer
 - tmux
 - visual-studio-code
 - wget
