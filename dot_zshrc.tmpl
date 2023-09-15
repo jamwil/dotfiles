@@ -9,6 +9,7 @@ fi
 
 alias ll='lsd -alhF'
 alias cloc='cloc --vcs=git'
+alias nginx='nginx -g "daemon off;"'
 
 # Mac-specific
 {{ if (eq .chezmoi.os "darwin") -}}
@@ -35,6 +36,7 @@ export PATH="$PATH:$HOME/.local/bin"
 {{- end }}
 
 # Miscellaneous
+export EDITOR=vim
 export GPG_TTY=$TTY
 export RICH_THEME=monokai
 
