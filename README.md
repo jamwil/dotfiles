@@ -1,10 +1,12 @@
 # dotfiles
 
-I'm clearly a minimalist ⚫️🗃. These are managed using the amazing [chezmoi](https://www.chezmoi.io).
+I'm clearly a minimalist ⚫️🗃. These are managed using the amazing
+[chezmoi](https://www.chezmoi.io).
 
 ## Essential software
 
-The following is required for these dotfiles to work properly (including aliases):
+The following is required for these dotfiles to work properly (including
+aliases):
 
 - atuin
 - chezmoi
@@ -26,13 +28,26 @@ Run this command on a fresh ubuntu install:
 bash <(curl https://raw.githubusercontent.com/jamwil/dotfiles/main/bootstrap-ubuntu.sh)
 ```
 
-Test zsh and if everything looks good, change the default shell with `chsh -s $(which zsh)`.
+or this command on a fresh fedora install:
 
-Then, optionally set up Atuin sync and proceed to the non-mandatory apps below.
+```bash
+bash <(curl https://raw.githubusercontent.com/jamwil/dotfiles/main/bootstrap-fedora.sh)
+```
+
+Test zsh and if everything looks good, change the default shell with
+`chsh -s $(which zsh)`. You'll need a nerd font installed on your client
+machine: https://github.com/romkatv/powerlevel10k#manual-font-installation
+
+Then, set up Atuin sync and proceed to the non-mandatory apps below.
+
+```bash
+atuin login -u <USERNAME>
+```
 
 ## Other applications
 
-The following is not mandatory for dotfiles but is a helpful checklist when setting up a new mac:
+The following is not mandatory for dotfiles but is a helpful checklist when
+setting up a new mac:
 
 - 1Password
 - AlDente

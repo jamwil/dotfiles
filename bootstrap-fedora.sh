@@ -2,9 +2,10 @@
 
 read -p "Proceed with updating package list and installing dependencies? (y/n): " choice
 if [[ $choice == 'y' ]]; then
-    sudo apt-get update
-    sudo apt-get install -y curl git build-essential libssl-dev zlib1g-dev \
-        libbz2-dev libreadline-dev libsqlite3-dev wget libffi-dev
+    sudo dnf update -y
+    sudo dnf install -y curl git gcc-c++ openssl-devel zlib-devel \
+        bzip2 bzip2-devel readline-devel sqlite sqlite-devel wget \
+        libffi-devel util-linux-user
 fi
 
 read -p "Proceed with installing chezmoi? (y/n): " choice
@@ -35,12 +36,12 @@ fi
 
 read -p "Proceed with installing direnv (y/n): " choice
 if [[ $choice == 'y' ]]; then
-    sudo apt-get install -y direnv
+    sudo dnf install -y direnv
 fi
 
 read -p "Proceed with installing cloc (y/n): " choice
 if [[ $choice == 'y' ]]; then
-    sudo apt-get install -y cloc
+    sudo dnf install -y cloc
 fi
 
 read -p "Proceed with cloning powerlevel10k into ~/powerlevel10k? (y/n): " choice
@@ -50,7 +51,7 @@ fi
 
 read -p "Proceed with installing zsh? (y/n): " choice
 if [[ $choice == 'y' ]]; then
-    sudo apt-get install -y zsh
+    sudo dnf install -y zsh
 fi
 
 echo "Installation complete. Launch zsh to test or change the default shell with chsh."
