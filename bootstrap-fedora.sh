@@ -3,9 +3,7 @@
 read -p "Proceed with updating package list and installing dependencies? (y/n): " choice
 if [[ $choice == 'y' ]]; then
     sudo dnf update -y
-    sudo dnf install -y curl git gcc-c++ openssl-devel zlib-devel \
-        bzip2 bzip2-devel readline-devel sqlite sqlite-devel wget \
-        libffi-devel util-linux-user
+    sudo dnf install -y curl git util-linux-user
 fi
 
 read -p "Proceed with installing chezmoi? (y/n): " choice
