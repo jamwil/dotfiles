@@ -1,0 +1,82 @@
+---@type MappingsTable
+local M = {}
+
+M.general = {
+  t = {
+    ["<C-`>"] = {
+      function()
+        require("nvterm.terminal").toggle "horizontal"
+      end,
+      "Toggle horizontal term",
+    },
+  },
+
+  n = {
+    [";"] = { ":", "enter command mode", opts = { nowait = true } },
+
+    -- Toggle terminal like VS Code
+    ["<C-`>"] = {
+      function()
+        require("nvterm.terminal").toggle "horizontal"
+      end,
+      "Toggle horizontal term",
+    },
+
+    -- Toggle outline.nvim
+    ["<leader>o"] = { "<cmd>Outline<CR>", "Toggle outline" },
+
+    --  format with conform
+    ["<leader>fm"] = {
+      function()
+        require("conform").format()
+      end,
+      "formatting",
+    },
+
+    -- dap mappings
+    ["<F5>"] = {
+      function()
+        require("dap").continue()
+      end,
+      "Debug: Start/Continue debugging",
+    },
+    ["<F8>"] = {
+      function()
+        require("dap").toggle_breakpoint()
+      end,
+      "Debug: Toggle breakpoint",
+    },
+    ["<F10>"] = {
+      function()
+        require("dap").step_over()
+      end,
+      "Debug: Step over",
+    },
+    ["<F11>"] = {
+      function()
+        require("dap").step_into()
+      end,
+      "Debug: Step into",
+    },
+    ["<F12>"] = {
+      function()
+        require("dap").step_out()
+      end,
+      "Debug: Step out",
+    },
+    ["<leader>;"] = {
+      function()
+        require("dap-python").test_method()
+      end,
+      "Debug: Test method",
+    },
+  },
+
+  v = {
+    [">"] = { ">gv", "indent" },
+  },
+}
+
+-- more keybinds!
+
+return M
