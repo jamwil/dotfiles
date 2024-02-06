@@ -23,7 +23,7 @@ M.general = {
     },
 
     -- Toggle outline.nvim
-    ["<leader>o"] = { "<cmd>Outline<CR>", "Toggle outline" },
+    ["<leader>o"] = { "<cmd> OutlineOpen <CR> <cmd> OutlineFocusOutline <CR>", "Focus outline" },
 
     --  format with conform
     ["<leader>fm"] = {

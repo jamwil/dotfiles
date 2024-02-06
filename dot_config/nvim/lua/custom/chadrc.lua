@@ -21,8 +21,14 @@ M.ui = {
         modules,
         2,
         (function()
-          local path = vim.api.nvim_buf_get_name(0):match "^.*/"
-          return "%#St_file_info#" .. " " .. path .. "%#St_file_sep#"
+          local success, path = pcall(function()
+            return vim.api.nvim_buf_get_name(0):match "^.*/"
+          end)
+          if success and path then
+            return "%#St_file_info#" .. " " .. path .. "%#St_file_sep#"
+          else
+            return ""
+          end
         end)()
       )
     end,
