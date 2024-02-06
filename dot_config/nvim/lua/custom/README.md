@@ -1,3 +1,3 @@
-# Example_config
+# jamwil's NvChad config
 
-This can be used as an example custom config for NvChad. Do check the https://github.com/NvChad/nvcommunity
+Forms the user-overridden component of NvChad.
