@@ -22,5 +22,4 @@ if vim.g.neovide then
   vim.g.neovide_cursor_animation_length = 0.01
   vim.g.neovide_cursor_animate_in_insert_mode = false
   vim.g.neovide_scroll_animation_length = 0.05
-  vim.g.neovide_theme = "dark"
 end
