@@ -1,3 +1,6 @@
+-- Disable swapfiles
+vim.opt.swapfile = false
+
 -- Auto format on save
 vim.api.nvim_create_autocmd("BufWritePre", {
   pattern = "*",

@@ -57,13 +57,18 @@ M.nvimtree = {
   },
 
   renderer = {
+    special_files = { "Cargo.toml", "Makefile", "README.md", "readme.md", "pyproject.toml", "tox.ini" },
     highlight_git = false,
     icons = {
+      git_placement = "after",
       show = {
         git = true,
       },
       glyphs = {},
     },
+  },
+  filters = {
+    git_ignored = false,
   },
 }
 
