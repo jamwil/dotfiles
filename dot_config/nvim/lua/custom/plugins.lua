@@ -18,6 +18,11 @@ local plugins = {
   {
     "nvim-treesitter/nvim-treesitter",
     opts = overrides.treesitter,
+    config = function(_, opts)
+      require("nvim-treesitter.install").compilers = { "clang" }
+      dofile(vim.g.base46_cache .. "syntax")
+      require("nvim-treesitter.configs").setup(opts)
+    end,
   },
 
   {
