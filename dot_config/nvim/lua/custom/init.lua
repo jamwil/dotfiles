@@ -20,3 +20,7 @@ if vim.g.neovide then
   vim.g.neovide_scroll_animation_length = 0.05
   vim.g.neovide_input_macos_alt_is_meta = true
 end
+
+-- Compile treesitter with clang (Windows 11 hack)
+-- https://github.com/nvim-treesitter/nvim-treesitter/issues/5264
+require("nvim-treesitter.install").compilers = { "clang" }
