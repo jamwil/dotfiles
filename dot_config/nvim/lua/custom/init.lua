@@ -13,8 +13,8 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 
 -- GUI specific
+vim.o.guifont = "Hack Nerd Font:h13"
 if vim.g.neovide then
-  vim.o.guifont = "Hack Nerd Font:h13"
   vim.g.neovide_cursor_animation_length = 0.01
   vim.g.neovide_cursor_animate_in_insert_mode = false
   vim.g.neovide_scroll_animation_length = 0.05
