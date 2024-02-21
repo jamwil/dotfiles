@@ -87,16 +87,20 @@ local plugins = {
         dapui.open()
         nvimtree.tree.close()
       end
-      dap.listeners.before.event_terminated.dapui_config = function()
-        dapui.close()
-        nvimtree.tree.open()
-      end
-      dap.listeners.before.event_exited.dapui_config = function()
-        dapui.close()
-        nvimtree.tree.open()
-      end
+      dap.listeners.before.event_terminated.dapui_config = function() end
+      dap.listeners.before.event_exited.dapui_config = function() end
       require("dapui").setup()
     end,
+  },
+
+  {
+    "sindrets/diffview.nvim",
+    lazy = false,
+  },
+
+  {
+    "github/copilot.vim",
+    lazy = false,
   },
 }
 

@@ -32,8 +32,26 @@ M.general = {
       end,
       "formatting",
     },
+  },
 
+  v = {
+    [">"] = { ">gv", "indent" },
+  },
+}
+
+M.copilot = {
+  i = {},
+}
+
+M.debug = {
+  n = {
     -- dap mappings
+    ["<F4>"] = {
+      function()
+        require("dap-ui").close()
+      end,
+      "Debug: Close debugger",
+    },
     ["<F5>"] = {
       function()
         require("dap").continue()
@@ -70,10 +88,6 @@ M.general = {
       end,
       "Debug: Test method",
     },
-  },
-
-  v = {
-    [">"] = { ">gv", "indent" },
   },
 }
 
