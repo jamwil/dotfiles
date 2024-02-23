@@ -76,25 +76,72 @@ local plugins = {
       "mfussenegger/nvim-dap-python",
       "rcarriga/nvim-dap-ui",
     },
+  },
+
+  {
+    "mfussenegger/nvim-dap-python",
     config = function()
-      -- Configure python
       require("dap-python").setup "~/.pyenv/shims/python"
       require("dap-python").test_runner = "pytest"
+    end,
+  },
 
-      -- Configure dapui events
+  {
+    "rcarriga/nvim-dap-ui",
+    config = function()
       local dap, dapui = require "dap", require "dapui"
       local nvimtree = require "nvim-tree.api"
+
       dap.listeners.before.attach.dapui_config = function()
-        dapui.open()
         nvimtree.tree.close()
+        dapui.open()
       end
       dap.listeners.before.launch.dapui_config = function()
-        dapui.open()
         nvimtree.tree.close()
+        dapui.open()
       end
       dap.listeners.before.event_terminated.dapui_config = function() end
       dap.listeners.before.event_exited.dapui_config = function() end
-      require("dapui").setup()
+      require("dapui").setup {
+        layouts = {
+          {
+            elements = {
+              {
+                id = "scopes",
+                size = 0.25,
+              },
+              {
+                id = "breakpoints",
+                size = 0.25,
+              },
+              {
+                id = "stacks",
+                size = 0.25,
+              },
+              {
+                id = "watches",
+                size = 0.25,
+              },
+            },
+            position = "left",
+            size = 50,
+          },
+          {
+            elements = {
+              {
+                id = "repl",
+                size = 0.5,
+              },
+              {
+                id = "console",
+                size = 0.5,
+              },
+            },
+            position = "bottom",
+            size = 30,
+          },
+        },
+      }
     end,
   },
 

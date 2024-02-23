@@ -48,7 +48,8 @@ M.debug = {
     -- dap mappings
     ["<F4>"] = {
       function()
-        require("dap-ui").close()
+        require("dapui").close()
+        require("nvim-tree.api").tree.open()
       end,
       "Debug: Close debugger",
     },
