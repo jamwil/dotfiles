@@ -94,11 +94,11 @@ local plugins = {
 
       dap.listeners.before.attach.dapui_config = function()
         nvimtree.tree.close()
-        dapui.open()
+        dapui.open { reset = true }
       end
       dap.listeners.before.launch.dapui_config = function()
         nvimtree.tree.close()
-        dapui.open()
+        dapui.open { reset = true }
       end
       dap.listeners.before.event_terminated.dapui_config = function() end
       dap.listeners.before.event_exited.dapui_config = function() end
@@ -124,21 +124,21 @@ local plugins = {
               },
             },
             position = "left",
-            size = 50,
+            size = 40,
           },
           {
             elements = {
               {
                 id = "repl",
-                size = 0.5,
+                size = 0.40,
               },
               {
                 id = "console",
-                size = 0.5,
+                size = 0.60,
               },
             },
             position = "bottom",
-            size = 30,
+            size = 0.4,
           },
         },
       }
