@@ -53,7 +53,7 @@ local plugins = {
 
   {
     "hedyhli/outline.nvim",
-    lazy = true,
+    lazy = false,
     cmd = { "Outline", "OutlineOpen" },
     opts = {},
   },
@@ -152,7 +152,7 @@ local plugins = {
 
   {
     "github/copilot.vim",
-    lazy = false,
+    cmd = "Copilot",
   },
 }
 
