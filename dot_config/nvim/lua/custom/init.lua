@@ -14,7 +14,7 @@ vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,
 
 -- GUI specific
 if vim.loop.os_uname().sysname == "Windows_NT" then
-	vim.o.guifont = "0xProto Nerd Font:h11"
+	vim.o.guifont = "Hack Nerd Font:h10"
 	local powershell_options = {
 		shell = vim.fn.executable("pwsh") == 1 and "pwsh" or "powershell",
 		shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;",
