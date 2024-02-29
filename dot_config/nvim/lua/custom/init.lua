@@ -1,6 +1,11 @@
 -- Disable swapfiles
 vim.opt.swapfile = false
 
+-- Treesitter folding
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+vim.opt.foldlevel = 3
+
 -- Auto format on save
 vim.api.nvim_create_autocmd("BufWritePre", {
 	pattern = "*",
