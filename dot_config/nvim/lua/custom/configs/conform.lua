@@ -7,6 +7,7 @@ local options = {
     javascript = { "prettier" },
     css = { "prettier" },
     html = { "djlint" },
+    markdown = { "prettier" },
 
     sh = { "shfmt" },
 
@@ -19,6 +20,12 @@ local options = {
     -- These options will be passed to conform.format()
     timeout_ms = 1000,
     lsp_fallback = false,
+  },
+
+  formatters = {
+    prettier = {
+      prepend_args = { "--prose-wrap", "always" },
+    },
   },
 }
 
