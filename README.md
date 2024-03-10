@@ -64,6 +64,7 @@ setting up a new mac:
 - mas
 - mimestream
 - netnewswire
+- neovim (with nvchad 2.0)
 - Parallels Desktop
 - Sparrow
 - pipx
@@ -71,5 +72,4 @@ setting up a new mac:
 - Tailscale
 - tealdeer
 - tmux
-- visual-studio-code
 - wget
