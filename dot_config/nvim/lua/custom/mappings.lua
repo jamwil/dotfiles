@@ -39,10 +39,6 @@ M.general = {
   },
 }
 
-M.copilot = {
-  i = {},
-}
-
 M.debug = {
   n = {
     -- dap mappings

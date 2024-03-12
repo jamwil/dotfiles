@@ -57,7 +57,7 @@ local plugins = {
     cmd = { "Outline", "OutlineOpen" },
     opts = {
       outline_window = {
-        width = 60,
+        width = 50,
         relative_width = false,
       },
     },
@@ -161,8 +161,21 @@ local plugins = {
   },
 
   {
-    "github/copilot.vim",
+    "zbirenbaum/copilot.lua",
     cmd = "Copilot",
+    event = "InsertEnter",
+    opts = {
+      suggestion = {
+        auto_trigger = false, -- default
+        keymap = {
+          accept = "<M-\\>",
+          accept_word = "<M-'>",
+          accept_line = "<M-;>",
+          dismiss = "<C-]>",
+          next = "<M-]>",
+        },
+      },
+    },
   },
 }
 
