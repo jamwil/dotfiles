@@ -80,6 +80,7 @@ local plugins = {
     dependencies = {
       "mfussenegger/nvim-dap-python",
       "rcarriga/nvim-dap-ui",
+      "nvim-neotest/nvim-nio",
     },
     init = function()
       require("dap.ext.vscode").load_launchjs()
