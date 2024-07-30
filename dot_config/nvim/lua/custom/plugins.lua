@@ -71,6 +71,7 @@ local plugins = {
         auto_session_suppress_dirs = { "~/", "~/projects", "~/Downloads", "/" },
         pre_save_cmds = { "NvimTreeClose", "OutlineClose" },
         post_restore_cmds = { "NvimTreeOpen" },
+        log_level = "debug",
       }
     end,
   },
