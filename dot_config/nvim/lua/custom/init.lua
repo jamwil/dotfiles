@@ -57,9 +57,9 @@ if vim.loop.os_uname().sysname == "Windows_NT" then
   for option, value in pairs(powershell_options) do
     vim.opt[option] = value
   end
-else
-  vim.o.guifont = "Hack Nerd Font:h13"
 end
+
+vim.o.guifont = "Hack Nerd Font:h13"
 
 vim.g.neovide_cursor_animation_length = 0.01
 vim.g.neovide_cursor_animate_in_insert_mode = false
