@@ -50,7 +50,7 @@ export PATH="$PATH:$HOME/go/bin"
 test -e $HOME/.iterm2_shell_integration.zsh && source $HOME/.iterm2_shell_integration.zsh || true
 
 # atuin
-eval "$(atuin init zsh)"
+eval "$(atuin init zsh --disable-up-arrow)"
 
 # direnv
 eval "$(direnv hook zsh)"
