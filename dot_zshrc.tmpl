@@ -1,6 +1,7 @@
 alias ll='lsd -alhF'
 alias cloc='cloc --vcs=git'
 alias nginx='nginx -g "daemon off;"'
+alias cargo-update="cargo install $(cargo install --list | egrep '^[a-z0-9_-]+ v[0-9.]+:$' | cut -f1 -d' ')"
 
 # Mac-specific
 {{ if (eq .chezmoi.os "darwin") -}}
