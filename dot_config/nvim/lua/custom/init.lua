@@ -59,12 +59,6 @@ if vim.loop.os_uname().sysname == "Windows_NT" then
   end
 end
 
-if vim.g.neovide then
-  vim.o.guifont = "Hack Nerd Font:h13"
-else
-  vim.o.guifont = "Hack Nerd Font:h11"
-end
-
 vim.g.neovide_cursor_animation_length = 0.01
 vim.g.neovide_cursor_animate_in_insert_mode = false
 vim.g.neovide_scroll_animation_length = 0.05
