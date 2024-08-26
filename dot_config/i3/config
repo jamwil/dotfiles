@@ -210,3 +210,6 @@ bar {
 exec xinput set-prop 9 309 1
 # Natural scroll
 exec xinput set-prop 9 317 1
+
+# Add alt-tab style workspace switching
+bindsym $mod+Tab workspace back_and_forth
