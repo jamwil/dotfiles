@@ -9,6 +9,9 @@ vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 
+-- Scrolling
+vim.opt.scrolloff = 20
+
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "lua",
   callback = function()
