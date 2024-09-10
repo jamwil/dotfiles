@@ -7,7 +7,18 @@ local M = {}
 ---@type Base46HLGroupsList
 M.override = {
   Comment = {
+    fg = "#999999",
     italic = true,
+  },
+  ["@comment"] = {
+    fg = "#999999",
+    italic = true,
+  },
+  LineNr = {
+    fg = "#999999",
+  },
+  SignColumn = {
+    fg = "#dddddd",
   },
 }
 
