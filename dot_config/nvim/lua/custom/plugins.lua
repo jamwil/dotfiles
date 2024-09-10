@@ -122,33 +122,33 @@ local plugins = {
             elements = {
               {
                 id = "scopes",
-                size = 0.25,
+                size = 0.45,
               },
               {
                 id = "breakpoints",
+                size = 0.1,
+              },
+              {
+                id = "watches",
                 size = 0.25,
               },
               {
                 id = "stacks",
                 size = 0.25,
               },
-              {
-                id = "watches",
-                size = 0.25,
-              },
             },
             position = "left",
-            size = 40,
+            size = 60,
           },
           {
             elements = {
               {
                 id = "repl",
-                size = 0.40,
+                size = 0.50,
               },
               {
                 id = "console",
-                size = 0.60,
+                size = 0.50,
               },
             },
             position = "bottom",
