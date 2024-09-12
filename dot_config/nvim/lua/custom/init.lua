@@ -10,7 +10,7 @@ vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 
 -- Scrolling
-vim.opt.scrolloff = 20
+vim.opt.scrolloff = 15
 
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "lua",
@@ -62,7 +62,13 @@ if vim.loop.os_uname().sysname == "Windows_NT" then
   end
 end
 
+-- Neovide specific
 vim.g.neovide_cursor_animation_length = 0.01
 vim.g.neovide_cursor_animate_in_insert_mode = false
 vim.g.neovide_scroll_animation_length = 0.05
 vim.g.neovide_input_macos_option_key_is_meta = "both"
+
+-- nvy specific
+if vim.g.nvy == 1 then
+  vim.o.guifont = "Hack Nerd Font:h10"
+end
