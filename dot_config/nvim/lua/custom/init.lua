@@ -4,6 +4,9 @@ vim.opt.autoread = true
 -- Enable swapfiles
 vim.opt.swapfile = true
 
+-- Clipboard
+vim.opt.clipboard = ""
+
 -- Indenting
 vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
