@@ -32,6 +32,12 @@ M.general = {
       end,
       "formatting",
     },
+
+    -- Open Diffview
+    ["<leader>dv"] = { "<cmd> DiffviewOpen <CR>", "Open Diffview" },
+
+    -- Open Diffview file history
+    ["<leader>dh"] = { "<cmd> DiffviewFileHistory <CR>", "Open Diffview file history" },
   },
 
   v = {
