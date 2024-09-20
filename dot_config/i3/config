@@ -213,3 +213,8 @@ exec xinput set-prop 9 317 1
 
 # Add alt-tab style workspace switching
 bindsym $mod+Tab workspace back_and_forth
+
+# Launch certain windows in certain ways
+for_window [title="QEMU"] floating enable
+#for_window [title="QEMU"] floating enable, resize set 800px 500px
+
