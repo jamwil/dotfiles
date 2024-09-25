@@ -52,6 +52,9 @@ test -e $HOME/.iterm2_shell_integration.zsh && source $HOME/.iterm2_shell_integr
 # atuin
 eval "$(atuin init zsh --disable-up-arrow)"
 
+# zsh-autosuggestions
+source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+
 # direnv
 eval "$(direnv hook zsh)"
 if [[ -n $NVIM ]]; then
