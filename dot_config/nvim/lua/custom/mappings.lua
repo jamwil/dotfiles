@@ -94,6 +94,51 @@ M.debug = {
   },
 }
 
--- more keybinds!
+M.refactor = {
+  n = {
+    ["<leader>rr"] = {
+      function()
+        require("refactoring").select_refactor()
+      end,
+      "Refactor: select refactor",
+    },
+    ["<leader>ri"] = {
+      "<cmd> Refactor inline <CR>",
+      "Refactor: inline variable",
+    },
+    ["<leader>rI"] = {
+      "<cmd> Refactor inline_func <CR>",
+      "Refactor: inline function",
+    },
+    ["<leader>rb"] = {
+      "<cmd> Refactor extract_block <CR>",
+      "Refactor: extract block",
+    },
+    ["<leader>rbf"] = {
+      "<cmd> Refactor extract_block_to_file <CR>",
+      "Refactor: extract block to file",
+    },
+  },
+  x = {
+    ["<leader>rr"] = {
+      function()
+        require("refactoring").select_refactor()
+      end,
+      "Refactor: select refactor",
+    },
+    ["<leader>re"] = {
+      "<cmd> Refactor extract <CR>",
+      "Refactor: extract to function",
+    },
+    ["<leader>ref"] = {
+      "<cmd> Refactor extract_to_file <CR>",
+      "Refactor: extract function to file",
+    },
+    ["<leader>rv"] = {
+      "<cmd> Refactor extract_var <CR>",
+      "Refactor: extract variable",
+    },
+  },
+}
 
 return M
