@@ -47,7 +47,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 })
 
 -- Session save and restore items
-vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,terminal,localoptions"
+vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,localoptions"
 
 -- GUI specific
 if vim.loop.os_uname().sysname == "Windows_NT" then

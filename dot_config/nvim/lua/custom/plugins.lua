@@ -66,13 +66,14 @@ local plugins = {
   {
     "rmagatti/auto-session",
     lazy = false,
-    config = function()
-      require("auto-session").setup {
-        auto_session_suppress_dirs = { "~/", "~/projects", "~/Downloads", "/" },
-        pre_save_cmds = { "NvimTreeClose", "OutlineClose" },
-        post_restore_cmds = { "NvimTreeOpen" },
-      }
-    end,
+    opts = {
+      auto_session_suppress_dirs = { "~/", "~/projects", "~/Downloads", "/" },
+      pre_save_cmds = { "NvimTreeClose", "OutlineClose" },
+      auto_restore = false,
+      lazy_support = true,
+      continue_restore_on_error = false,
+      log_level = "info",
+    },
   },
 
   {
