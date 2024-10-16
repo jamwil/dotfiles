@@ -14,6 +14,20 @@ M.general = {
   n = {
     [";"] = { ":", "enter command mode", opts = { nowait = true } },
 
+    -- Move tabs left and right
+    ["<leader>-"] = {
+      function()
+        require("nvchad.tabufline").move_buf(-1)
+      end,
+      "Move tab left",
+    },
+    ["<leader>="] = {
+      function()
+        require("nvchad.tabufline").move_buf(1)
+      end,
+      "Move tab right",
+    },
+
     -- Toggle terminal like VS Code
     ["<C-`>"] = {
       function()
@@ -38,6 +52,9 @@ M.general = {
 
     -- Open Diffview file history
     ["<leader>dh"] = { "<cmd> DiffviewFileHistory <CR>", "Open Diffview file history" },
+
+    -- Restore auto-session
+    ["<leader>sr"] = { "<cmd> SessionRestore <CR>", "Restore session" },
   },
 
   v = {

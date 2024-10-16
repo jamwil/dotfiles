@@ -69,6 +69,7 @@ local plugins = {
     opts = {
       auto_session_suppress_dirs = { "~/", "~/projects", "~/Downloads", "/" },
       pre_save_cmds = { "NvimTreeClose", "OutlineClose" },
+      post_restore_cmds = { "NvimTreeOpen" },
       auto_restore = false,
       lazy_support = true,
       continue_restore_on_error = false,

@@ -40,7 +40,7 @@ vim.opt.foldlevel = 99
 
 -- Auto format on save
 vim.api.nvim_create_autocmd("BufWritePre", {
-  pattern = "*",
+  pattern = "!python",
   callback = function(args)
     require("conform").format { bufnr = args.buf }
   end,
