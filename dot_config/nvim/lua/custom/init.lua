@@ -40,7 +40,8 @@ vim.opt.foldlevel = 99
 
 -- Auto format on save
 vim.api.nvim_create_autocmd("BufWritePre", {
-  pattern = "!python",
+  -- Excluding python here as black is slow af
+  pattern = { "*.lua", "*.rs", "*.md" },
   callback = function(args)
     require("conform").format { bufnr = args.buf }
   end,
