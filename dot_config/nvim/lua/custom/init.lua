@@ -1,3 +1,7 @@
+-- Disable netrw (recommended by nvimtree)
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
 -- Enable autoread
 vim.opt.autoread = true
 

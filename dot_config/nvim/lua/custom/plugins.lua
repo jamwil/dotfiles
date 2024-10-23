@@ -27,6 +27,7 @@ local plugins = {
 
   {
     "nvim-tree/nvim-tree.lua",
+    version = "v1.6",
     lazy = false,
     opts = overrides.nvimtree,
   },
