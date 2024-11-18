@@ -6,20 +6,14 @@ local options = {
 
     javascript = { "prettier" },
     css = { "prettier" },
-    html = { "djlint" },
+    html = { "prettier" },
     markdown = { "prettier" },
 
     sh = { "shfmt" },
 
-    python = { "ruff_fix", "black" },
+    python = { "ruff_format" },
 
     rust = { "rustfmt" },
-  },
-
-  format_on_save = {
-    -- These options will be passed to conform.format()
-    timeout_ms = 5000,
-    lsp_fallback = false,
   },
 
   formatters = {

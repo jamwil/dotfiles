@@ -43,7 +43,7 @@ M.mason = {
 
     -- python stuff
     "pyright",
-    "ruff-lsp",
+    "ruff",
     "debugpy",
 
     -- rust stuff
@@ -55,6 +55,7 @@ M.mason = {
 M.nvimtree = {
   git = {
     enable = true,
+    timeout = 1000,
   },
 
   view = {

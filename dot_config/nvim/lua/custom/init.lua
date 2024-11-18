@@ -42,15 +42,6 @@ vim.opt.foldmethod = "expr"
 vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
 vim.opt.foldlevel = 99
 
--- Auto format on save
-vim.api.nvim_create_autocmd("BufWritePre", {
-  -- Excluding python here as black is slow af
-  pattern = { "*.lua", "*.rs", "*.md" },
-  callback = function(args)
-    require("conform").format { bufnr = args.buf }
-  end,
-})
-
 -- Session save and restore items
 vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,localoptions"
 
