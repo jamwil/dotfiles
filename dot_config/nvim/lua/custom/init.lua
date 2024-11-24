@@ -61,6 +61,15 @@ if vim.loop.os_uname().sysname == "Windows_NT" then
   end
 end
 
+-- GUI cmd key bindings
+if vim.g.neovide or vim.g.nvy == 1 then
+  vim.keymap.set('n', '<D-s>', ':w<CR>')
+  vim.keymap.set('v', '<D-c>', '"+y')
+  vim.keymap.set('n', '<D-v>', '"+P')
+  vim.keymap.set('i', '<D-v>', '<ESC>"+pa')
+  vim.keymap.set('t', '<D-v>', '<C-\\><C-N>"+Pa')
+end
+
 -- Neovide specific
 vim.g.neovide_cursor_animation_length = 0.01
 vim.g.neovide_cursor_animate_in_insert_mode = false
