@@ -37,6 +37,12 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+-- Pest files
+vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
+    pattern = {"*.pest"},
+    command = "set filetype=pest"
+})
+
 -- Treesitter folding
 vim.opt.foldmethod = "expr"
 vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
@@ -63,11 +69,11 @@ end
 
 -- GUI cmd key bindings
 if vim.g.neovide or vim.g.nvy == 1 then
-  vim.keymap.set('n', '<D-s>', ':w<CR>')
-  vim.keymap.set('v', '<D-c>', '"+y')
-  vim.keymap.set('n', '<D-v>', '"+P')
-  vim.keymap.set('i', '<D-v>', '<ESC>"+pa')
-  vim.keymap.set('t', '<D-v>', '<C-\\><C-N>"+Pa')
+  vim.keymap.set("n", "<D-s>", ":w<CR>")
+  vim.keymap.set("v", "<D-c>", '"+y')
+  vim.keymap.set("n", "<D-v>", '"+P')
+  vim.keymap.set("i", "<D-v>", '<ESC>"+pa')
+  vim.keymap.set("t", "<D-v>", '<C-\\><C-N>"+Pa')
 end
 
 -- Neovide specific

@@ -48,6 +48,7 @@ M.mason = {
 
     -- rust stuff
     "rust-analyzer",
+    "pest-language-server",
   },
 }
 

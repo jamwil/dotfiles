@@ -198,6 +198,11 @@ local plugins = {
       },
     },
   },
+
+  {
+    "pest-parser/pest.vim",
+    ft = "pest",
+  },
 }
 
 return plugins
