@@ -15,6 +15,7 @@ for _, lsp in ipairs(servers) do
 end
 
 lspconfig["pyright"].setup {
+  autostart = false,
   on_attach = on_attach,
   capabilities = capabilities,
   handlers = {

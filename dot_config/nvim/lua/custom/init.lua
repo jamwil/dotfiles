@@ -8,6 +8,9 @@ vim.opt.autoread = true
 -- Enable swapfiles
 vim.opt.swapfile = true
 
+-- Project-specific config
+vim.o.exrc = true
+
 -- Clipboard
 vim.opt.clipboard = ""
 
