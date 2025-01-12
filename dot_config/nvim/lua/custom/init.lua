@@ -36,7 +36,7 @@ vim.api.nvim_create_autocmd("FileType", {
   pattern = "markdown",
   callback = function()
     -- Will create actual line breaks
-    vim.opt_local.textwidth = 80
+    vim.opt_local.textwidth = 100
   end,
 })
 
