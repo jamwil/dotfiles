@@ -50,13 +50,18 @@ export PATH="$PATH:$HOME/go/bin"
 test -e $HOME/.iterm2_shell_integration.zsh && source $HOME/.iterm2_shell_integration.zsh || true
 
 # atuin
+export PATH="$PATH:$HOME/.atuin/bin"
 eval "$(atuin init zsh --disable-up-arrow)"
 
 # zsh-autosuggestions
 {{ if (eq .chezmoi.os "darwin") -}}
 source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 {{- else -}}
-source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+if [[ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
+    source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+elif [[ -f ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
+    source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+fi
 {{- end }}
 
 # direnv
