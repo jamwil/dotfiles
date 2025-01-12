@@ -10,7 +10,6 @@ aliases):
 
 - atuin
 - chezmoi
-- cloc
 - direnv
 - git
 - homebrew (on mac)
@@ -19,6 +18,7 @@ aliases):
 - pyenv
 - sqlite3
 - vim
+- zsh-autosuggestions
 
 ### Ubuntu setup script
 

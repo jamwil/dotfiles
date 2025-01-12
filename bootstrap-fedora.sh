@@ -19,12 +19,12 @@ fi
 
 read -p "Proceed with installing Atuin? (y/n): " choice
 if [[ $choice == 'y' ]]; then
-    cargo install atuin
+    curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
 fi
 
 read -p "Proceed with installing lsd? (y/n): " choice
 if [[ $choice == 'y' ]]; then
-    cargo install lsd
+    sudo dnf install -y lsd
 fi
 
 read -p "Proceed with installing pyenv? (y/n): " choice
@@ -37,11 +37,6 @@ if [[ $choice == 'y' ]]; then
     sudo dnf install -y direnv
 fi
 
-read -p "Proceed with installing cloc (y/n): " choice
-if [[ $choice == 'y' ]]; then
-    sudo dnf install -y cloc
-fi
-
 read -p "Proceed with cloning powerlevel10k into ~/powerlevel10k? (y/n): " choice
 if [[ $choice == 'y' ]]; then
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
@@ -49,6 +44,7 @@ fi
 
 read -p "Proceed with installing zsh? (y/n): " choice
 if [[ $choice == 'y' ]]; then
+    git clone https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/zsh-autosuggestions
     sudo dnf install -y zsh
 fi
 
