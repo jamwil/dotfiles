@@ -14,16 +14,25 @@ vim.o.exrc = true
 -- Clipboard
 vim.opt.clipboard = ""
 
+-- Scrolling
+vim.opt.scrolloff = 15
+
 -- Indenting
 vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 
--- Scrolling
-vim.opt.scrolloff = 15
-
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "lua",
+  callback = function()
+    vim.opt_local.shiftwidth = 2
+    vim.opt_local.tabstop = 2
+    vim.opt_local.softtabstop = 2
+  end,
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "html", "css", "javascript" },
   callback = function()
     vim.opt_local.shiftwidth = 2
     vim.opt_local.tabstop = 2
