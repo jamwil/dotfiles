@@ -138,7 +138,7 @@ local plugins = {
               },
             },
             position = "left",
-            size = 60,
+            size = 55,
           },
           {
             elements = {
