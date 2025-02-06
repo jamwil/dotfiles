@@ -13,5 +13,5 @@ wsl = false
 
 [font]
 normal = ["Hack Nerd Font"]
-size = 13.0
+size = 11.0
 

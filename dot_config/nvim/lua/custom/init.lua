@@ -93,6 +93,7 @@ vim.g.neovide_cursor_animation_length = 0.01
 vim.g.neovide_cursor_animate_in_insert_mode = false
 vim.g.neovide_scroll_animation_length = 0.05
 vim.g.neovide_input_macos_option_key_is_meta = "both"
+vim.g.neovide_title_background_color = "black"
 
 -- nvy specific
 if vim.g.nvy == 1 then
