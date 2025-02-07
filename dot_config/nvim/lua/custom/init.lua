@@ -81,11 +81,19 @@ end
 
 -- GUI cmd key bindings
 if vim.g.neovide or vim.g.nvy == 1 then
-  vim.keymap.set("n", "<D-s>", ":w<CR>")
-  vim.keymap.set("v", "<D-c>", '"+y')
-  vim.keymap.set("n", "<D-v>", '"+P')
-  vim.keymap.set("i", "<D-v>", '<ESC>"+pa')
-  vim.keymap.set("t", "<D-v>", '<C-\\><C-N>"+Pa')
+  if vim.loop.os_uname().sysname == "Darwin" then
+    vim.keymap.set("n", "<D-s>", ":w<CR>")
+    vim.keymap.set("v", "<D-c>", '"+y')
+    vim.keymap.set("n", "<D-v>", '"+P')
+    vim.keymap.set("i", "<D-v>", '<ESC>"+pa')
+    vim.keymap.set("t", "<D-v>", '<C-\\><C-N>"+Pa')
+  else
+    vim.keymap.set("n", "<C-s>", ":w<CR>")
+    vim.keymap.set("v", "<C-c>", '"+y')
+    vim.keymap.set("n", "<C-v>", '"+P')
+    vim.keymap.set("i", "<C-v>", '<ESC>"+pa')
+    vim.keymap.set("t", "<C-v>", '<C-\\><C-N>"+Pa')
+  end
 end
 
 -- Neovide specific
