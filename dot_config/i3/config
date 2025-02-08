@@ -193,6 +193,9 @@ bindsym $mod+Tab workspace back_and_forth
 
 # Launch certain windows in certain ways
 for_window [title="QEMU"] floating enable
+assign [class="Chromium"] "2: web"
+assign [class="neovide"] "3: code"
+assign [class="1Password"] "10: pass"
 
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
