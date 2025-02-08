@@ -1,5 +1,0 @@
-# Added by OrbStack: command-line tools and integration
-source ~/.orbstack/shell/init.zsh 2>/dev/null || :
-
-# Add homebrew to path so neovide can find nvim
-export PATH="$PATH:/opt/homebrew/bin"
