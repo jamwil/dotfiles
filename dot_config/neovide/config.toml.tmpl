@@ -13,5 +13,10 @@ wsl = false
 
 [font]
 normal = ["Hack Nerd Font"]
+{{- if eq .chezmoi.os "darwin" }}
+size = 13.0
+{{- else if eq .chezmoi.os "linux" }}
+size = 7.0
+{{- else }}
 size = 11.0
-
+{{ end }}
