@@ -62,6 +62,7 @@ setting up a new mac:
 - just
 - lunar
 - mas
+- monolith
 - mimestream
 - netnewswire
 - neovim (with nvchad 2.0)
