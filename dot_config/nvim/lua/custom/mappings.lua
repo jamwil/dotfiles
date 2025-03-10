@@ -39,6 +39,9 @@ M.general = {
     -- Toggle outline.nvim
     ["<leader>o"] = { "<cmd> OutlineOpen <CR> <cmd> OutlineFocusOutline <CR>", "Focus outline" },
 
+    -- Open copilot chat
+    ["<leader>ll"] = { "<cmd> CopilotChatOpen <CR>", "Focus CopilotChat" },
+
     --  format with conform
     ["<leader>fm"] = {
       function()
