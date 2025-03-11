@@ -200,6 +200,39 @@ local plugins = {
   },
 
   {
+    "CopilotC-Nvim/CopilotChat.nvim",
+    dependencies = {
+      { "zbirenbaum/copilot.lua" },
+      { "nvim-lua/plenary.nvim", branch = "master" },
+    },
+    cmd = { "CopilotChat", "CopilotChatOpen" },
+    event = "InsertEnter",
+    opts = {
+      allow_insecure = true,
+      model = "claude-3.7-sonnet",
+      chat_autocomplete = true,
+      window = {
+        width = 80,
+      },
+    },
+    config = function(_, opts)
+      require("CopilotChat").setup(opts)
+      vim.api.nvim_create_autocmd("BufEnter", {
+        pattern = "copilot-*",
+        callback = function()
+          vim.opt.completeopt = vim.opt.completeopt + "noinsert" + "noselect"
+        end,
+      })
+      vim.api.nvim_create_autocmd("BufLeave", {
+        pattern = "copilot-*",
+        callback = function()
+          vim.opt.completeopt = vim.opt.completeopt - "noinsert" - "noselect"
+        end,
+      })
+    end,
+  },
+
+  {
     "L3MON4D3/LuaSnip",
     dependencies = "rafamadriz/friendly-snippets",
     config = function()
