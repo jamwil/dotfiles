@@ -15,6 +15,8 @@ local options = {
     python = { "ruff_format" },
 
     rust = { "rustfmt" },
+
+    terraform = { "terraform_fmt" },
   },
 
   formatters = {
