@@ -16,6 +16,7 @@ M.treesitter = {
     "python",
     "rust",
     "json",
+    "terraform",
   },
   indent = {
     enable = true,
@@ -51,6 +52,10 @@ M.mason = {
     -- rust stuff
     "rust-analyzer",
     "pest-language-server",
+
+    -- terraform
+    "terraform-ls",
+    "tflint",
   },
 }
 
