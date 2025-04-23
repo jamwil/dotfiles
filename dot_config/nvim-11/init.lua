@@ -66,7 +66,7 @@ vim.opt.sessionoptions = "buffers,curdir,folds,help,tabpages,options"
 
 -- Filetype-based config overrides
 vim.api.nvim_create_autocmd("FileType", {
-  pattern = { "lua", "html", "htmldjango", "css", "javascript", "terraform" },
+  pattern = { "lua", "html", "htmldjango", "json", "css", "javascript", "terraform" },
   callback = function()
     vim.opt_local.shiftwidth = 2
     vim.opt_local.tabstop = 2
@@ -136,14 +136,14 @@ vim.lsp.config["lua-language-server"] = {
 vim.lsp.config["rust-analyzer"] = {
   cmd = { "rust-analyzer" },
   filetypes = { "rust" },
-  root_markers = { "cargo.toml" },
+  root_markers = { "cargo.toml", ".git" },
 }
 
 -- ruff
 vim.lsp.config["ruff"] = {
   cmd = { "ruff", "server" },
   filetypes = { "python" },
-  root_markers = { "pyproject.toml", "ruff.toml", ".ruff.toml" },
+  root_markers = { "pyproject.toml", "ruff.toml", ".ruff.toml", ".git" },
   settings = {},
 }
 
@@ -158,6 +158,7 @@ vim.lsp.config["pyright"] = {
     "requirements.txt",
     "Pipfile",
     "pyrightconfig.json",
+    ".git",
   },
   settings = {
     python = {
@@ -170,8 +171,54 @@ vim.lsp.config["pyright"] = {
   },
 }
 
+-- basedpyright
+local function set_python_path(path)
+  local clients = vim.lsp.get_clients({
+    bufnr = vim.api.nvim_get_current_buf(),
+    name = "basedpyright",
+  })
+  for _, client in ipairs(clients) do
+    if client.settings then
+      client.settings.python = vim.tbl_deep_extend("force", client.settings.python or {}, { pythonPath = path })
+    else
+      client.config.settings = vim.tbl_deep_extend("force", client.config.settings, { python = { pythonPath = path } })
+    end
+    client.notify("workspace/didChangeConfiguration", { settings = nil })
+  end
+end
+
+vim.lsp.config["basedpyright"] = {
+  cmd = { "basedpyright-langserver", "--stdio" },
+  filetypes = { "python" },
+  root_markers = {
+    "pyproject.toml",
+    "setup.py",
+    "setup.cfg",
+    "requirements.txt",
+    "Pipfile",
+    "pyrightconfig.json",
+    ".git",
+  },
+  settings = {
+    basedpyright = {
+      analysis = {
+        autoSearchPaths = true,
+        useLibraryCodeForTypes = true,
+        diagnosticMode = "openFilesOnly",
+      },
+    },
+  },
+  on_attach = function(client, bufnr)
+    vim.api.nvim_buf_create_user_command(0, "LspPyrightSetPythonPath", set_python_path, {
+      desc = "Reconfigure basedpyright with the provided python path",
+      nargs = 1,
+      complete = "file",
+    })
+  end,
+}
+
 -- Enable LSPs
-vim.lsp.enable({ "lua-language-server", "rust-analyzer", "ruff", "pyright" })
+vim.lsp.enable({ "lua-language-server", "rust-analyzer", "ruff", "basedpyright" })
 
 -- Rounded borders
 vim.o.winborder = "rounded"
@@ -211,7 +258,15 @@ require("lazy").setup({
       opts = {
         bigfile = { enabled = true },
         explorer = { enabled = true },
-        picker = { enabled = true },
+        picker = {
+          enabled = true,
+          sources = {
+            explorer = {
+              hidden = true,
+              ignored = true,
+            },
+          },
+        },
       },
       keys = {
         {
@@ -277,7 +332,7 @@ require("lazy").setup({
       "nvim-lualine/lualine.nvim",
       dependencies = { "nvim-tree/nvim-web-devicons" },
       opts = {
-        options = { theme = "OceanicNext" },
+        options = { theme = "auto" },
       },
     },
     {
@@ -300,6 +355,7 @@ require("lazy").setup({
           css = { "prettier" },
           html = { "prettier" },
           htmldjango = { "djlint" },
+          json = { "prettier" },
           markdown = { "prettier" },
           sh = { "shfmt" },
           python = { "ruff_format" },
@@ -398,7 +454,7 @@ require("lazy").setup({
         },
         signature = { enabled = false },
         sources = {
-          default = { "lsp", "path", "snippets", "buffer" },
+          default = { "lsp", "path", "snippets" },
           providers = {
             path = {
               opts = {
@@ -463,9 +519,30 @@ require("lazy").setup({
       event = "BufReadPre",
       opts = {},
     },
+    {
+      "linux-cultist/venv-selector.nvim",
+      branch = "regexp",
+      opts = {
+        picker = "auto",
+      },
+      event = "VeryLazy",
+      keys = {
+        { "<leader>vs", "<cmd>VenvSelect<cr>" },
+        { "<leader>vc", "<cmd>VenvSelectCached<cr>" },
+      },
+    },
+    {
+      "uloco/bluloco.nvim",
+      lazy = false,
+      priority = 1000,
+      dependencies = { "rktjmp/lush.nvim" },
+      config = function()
+        -- your optional config goes here, see below.
+      end,
+    },
   },
   checker = { enabled = true },
-  install = { colorscheme = { "default" } },
+  install = { colorscheme = { "blueloco" } },
 })
 
 -- GUI cmd key bindings
@@ -496,3 +573,7 @@ vim.g.neovide_title_background_color = "black"
 if vim.g.nvy == 1 then
   vim.o.guifont = "Hack Nerd Font:h10"
 end
+
+-- colorscheme
+vim.opt.termguicolors = true
+vim.cmd('colorscheme bluloco')
