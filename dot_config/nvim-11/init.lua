@@ -19,7 +19,7 @@ vim.opt.autoread = true
 vim.opt.swapfile = true
 
 -- Project-specific config
-vim.o.exrc = true
+vim.o.exrc = false
 
 -- Clipboard
 vim.opt.clipboard = ""
@@ -88,30 +88,7 @@ vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right win
 vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
 vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
 
--- Use <Tab> and <S-Tab> to navigate the completion menu
-vim.keymap.set("i", "<Tab>", function()
-  return vim.fn.pumvisible() == 1 and "<C-n>" or "<Tab>"
-end, { expr = true })
-
-vim.keymap.set("i", "<S-Tab>", function()
-  return vim.fn.pumvisible() == 1 and "<C-p>" or "<S-Tab>"
-end, { expr = true })
-
--- Use <CR> to confirm selection
-vim.keymap.set("i", "<CR>", function()
-  return vim.fn.pumvisible() == 1 and "<C-y>" or "<CR>"
-end, { expr = true })
-
--- Use <Esc> to abort but stay in insert mode
-vim.keymap.set("i", "<Esc>", function()
-  if vim.fn.pumvisible() == 1 then
-    return vim.api.nvim_replace_termcodes("<C-e>", true, true, true)
-  else
-    return "<Esc>"
-  end
-end, { expr = true })
-
--- LSP
+-- lua-language-server
 vim.lsp.config["lua-language-server"] = {
   cmd = { "lua-language-server" },
   root_markers = { ".luarc.json" },
@@ -135,37 +112,46 @@ vim.lsp.config["lua-language-server"] = {
   },
 }
 
-vim.lsp.enable({ "lua-language-server" })
+-- rust-analyzer
+vim.lsp.config["rust-analyzer"] = {
+  cmd = { "rust-analyzer" },
+  filetypes = { "rust" },
+  root_markets = { "cargo.toml" },
+}
 
--- Enable LSP auto-completion
-vim.api.nvim_create_autocmd("LspAttach", {
-  callback = function(ev)
-    local client = vim.lsp.get_client_by_id(ev.data.client_id)
-    if client:supports_method("textDocument/completion") then
-      local caps = client.server_capabilities
-      if caps.completionProvider and caps.completionProvider.triggerCharacters then
-        vim.list_extend(caps.completionProvider.triggerCharacters, { ".", ">", ":" })
-      end
-      vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
+-- ruff
+vim.lsp.config["ruff"] = {
+  cmd = { "ruff", "server" },
+  filetypes = { "python" },
+  root_markers = { "pyproject.toml", "ruff.toml", ".ruff.toml"},
+  settings = {},
+}
 
-      -- Retrigger completion manually on alphanumerics or underscore
-      vim.api.nvim_create_autocmd("InsertCharPre", {
-        buffer = ev.buf,
-        callback = function()
-          local char = vim.v.char
-          if vim.fn.pumvisible() == 0 and char:match("[%w_]") then
-            vim.defer_fn(function()
-              vim.lsp.completion.get()
-            end, 0)
-          end
-        end,
-      })
-    end
-  end,
-})
+-- pyright
+vim.lsp.config["pyright"] = {
+  cmd = { "pyright-langserver", "--stdio" },
+  filetypes = { "python" },
+  root_markers = {
+    "pyproject.toml",
+    "setup.py",
+    "setup.cfg",
+    "requirements.txt",
+    "Pipfile",
+    "pyrightconfig.json",
+  },
+  settings = {
+    python = {
+      analysis = {
+        autoSearchPaths = true,
+        useLibraryCodeForTypes = true,
+        diagnosticMode = "openFilesOnly",
+      },
+    },
+  },
+}
 
--- Make autocompletion not annoying
-vim.cmd("set completeopt+=noselect")
+-- Enable LSPs
+vim.lsp.enable({ "lua-language-server", "rust-analyzer", "ruff", "pyright" })
 
 -- Rounded borders
 vim.o.winborder = "rounded"
@@ -340,6 +326,72 @@ require("lazy").setup({
           disable_command_mode = true,
         },
       },
+    },
+    {
+      "nvim-treesitter/nvim-treesitter",
+      build = ":TSUpdate",
+      main = "nvim-treesitter.configs",
+      opts = {
+        ensure_installed = {
+          "bash",
+          "c",
+          "css",
+          "diff",
+          "html",
+          "htmldjango",
+          "javascript",
+          "json",
+          "lua",
+          "luadoc",
+          "markdown",
+          "markdown_inline",
+          "python",
+          "query",
+          "rust",
+          "terraform",
+          "toml",
+          "typescript",
+          "vim",
+          "vimdoc",
+          "yaml",
+        },
+        auto_install = true,
+        highlight = {
+          enable = true,
+          additional_vim_regex_highlighting = { "ruby" },
+        },
+        indent = { enable = true, disable = { "ruby" } },
+      },
+    },
+    {
+      "saghen/blink.cmp",
+      dependencies = { "rafamadriz/friendly-snippets" },
+      version = "1.*",
+      opts = {
+        keymap = { preset = "enter" },
+        appearance = {
+          nerd_font_variant = "mono",
+        },
+        completion = {
+          documentation = { auto_show = false },
+          list = { selection = { preselect = false, auto_insert = false } },
+        },
+        signature = { enabled = true },
+        sources = {
+          default = { "lsp", "path", "snippets", "buffer" },
+          providers = {
+            path = {
+              opts = {
+                get_cwd = function(_)
+                  return vim.fn.getcwd()
+                end,
+              },
+            },
+          },
+        },
+        fuzzy = { implementation = "prefer_rust_with_warning" },
+      },
+      opts_extend = { "sources.default" },
     },
   },
   checker = { enabled = true },
