@@ -61,6 +61,9 @@ vim.opt.inccommand = "split"
 -- Offer to save
 vim.opt.confirm = true
 
+-- Session options
+vim.opt.sessionoptions = "buffers,curdir,folds,help,tabpages,options"
+
 -- Filetype-based config overrides
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "lua", "html", "htmldjango", "css", "javascript", "terraform" },
@@ -81,12 +84,30 @@ vim.api.nvim_create_autocmd("FileType", {
 
 -- Keybindings
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
-vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
+vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic quickfix list" })
+
+vim.keymap.set("n", "<leader>b", "<cmd>enew<CR>", { desc = "buffer new" })
 
 vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "Move focus to the left window" })
 vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right window" })
 vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
 vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
+
+vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { desc = "Go to declaration" })
+vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
+vim.keymap.set("n", "gi", vim.lsp.buf.implementation, { desc = "Go to implementation" })
+vim.keymap.set("n", "gr", vim.lsp.buf.references, { desc = "Go to references" })
+vim.keymap.set("n", "ra", vim.lsp.buf.rename, { desc = "Rename symbol" })
+
+vim.keymap.set("n", "<leader>sr", function()
+  require("persistence").load()
+end)
+
+vim.keymap.set("n", "<leader>dv", "<cmd>DiffviewOpen<CR>", { desc = "Open Diffview" })
+vim.keymap.set("n", "<leader>dh", "<cmd>DiffviewFileHistory<CR>", { desc = "Open DiffviewFileHistory" })
+
+vim.keymap.set("n", "<leader>ll", "<cmd>CopilotChatOpen<CR>", { desc = "Open Copilot Chat" })
+vim.keymap.set("v", "<leader>ll", "<cmd>CopilotChatOpen<CR>", { desc = "Open Copilot Chat" })
 
 -- lua-language-server
 vim.lsp.config["lua-language-server"] = {
@@ -101,10 +122,9 @@ vim.lsp.config["lua-language-server"] = {
       diagnostics = {
         globals = { "vim", "Snacks" },
       },
-    },
-    workspace = {
-      -- Make the server aware of Neovim runtime files
-      library = vim.api.nvim_get_runtime_file("", true),
+      workspace = {
+        library = vim.api.nvim_get_runtime_file("", true),
+      },
     },
     telemetry = {
       enable = false,
@@ -116,14 +136,14 @@ vim.lsp.config["lua-language-server"] = {
 vim.lsp.config["rust-analyzer"] = {
   cmd = { "rust-analyzer" },
   filetypes = { "rust" },
-  root_markets = { "cargo.toml" },
+  root_markers = { "cargo.toml" },
 }
 
 -- ruff
 vim.lsp.config["ruff"] = {
   cmd = { "ruff", "server" },
   filetypes = { "python" },
-  root_markers = { "pyproject.toml", "ruff.toml", ".ruff.toml"},
+  root_markers = { "pyproject.toml", "ruff.toml", ".ruff.toml" },
   settings = {},
 }
 
@@ -376,7 +396,7 @@ require("lazy").setup({
           documentation = { auto_show = false },
           list = { selection = { preselect = false, auto_insert = false } },
         },
-        signature = { enabled = true },
+        signature = { enabled = false },
         sources = {
           default = { "lsp", "path", "snippets", "buffer" },
           providers = {
@@ -393,8 +413,59 @@ require("lazy").setup({
       },
       opts_extend = { "sources.default" },
     },
+    {
+      "sindrets/diffview.nvim",
+      cmd = { "Diffview", "DiffviewOpen", "DiffviewFileHistory" },
+      opts = {
+        view = {
+          merge_tool = {
+            layout = "diff3_mixed",
+          },
+        },
+      },
+    },
+    {
+      "zbirenbaum/copilot.lua",
+      cmd = "Copilot",
+      event = "InsertEnter",
+      opts = {
+        suggestion = {
+          auto_trigger = false,
+          keymap = {
+            accept = "<M-\\>",
+            accept_word = "<M-'>",
+            accept_line = "<M-;>",
+            dismiss = "<C-]>",
+            next = "<M-]>",
+          },
+        },
+      },
+    },
+    {
+      "CopilotC-Nvim/CopilotChat.nvim",
+      dependencies = {
+        { "zbirenbaum/copilot.lua" },
+        { "nvim-lua/plenary.nvim", branch = "master" },
+      },
+      cmd = { "CopilotChat", "CopilotChatOpen" },
+      event = "InsertEnter",
+      opts = {
+        allow_insecure = true,
+        model = "claude-3.7-sonnet",
+        chat_autocomplete = true,
+        window = {
+          width = 80,
+        },
+      },
+    },
+    {
+      "folke/persistence.nvim",
+      event = "BufReadPre",
+      opts = {},
+    },
   },
   checker = { enabled = true },
+  install = { colorscheme = { "default" } },
 })
 
 -- GUI cmd key bindings
