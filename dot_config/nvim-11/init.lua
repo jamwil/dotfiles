@@ -98,6 +98,7 @@ vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
 vim.keymap.set("n", "gi", vim.lsp.buf.implementation, { desc = "Go to implementation" })
 vim.keymap.set("n", "gr", vim.lsp.buf.references, { desc = "Go to references" })
 vim.keymap.set("n", "ra", vim.lsp.buf.rename, { desc = "Rename symbol" })
+vim.keymap.set("n", "ca", vim.lsp.buf.code_action, { desc = "Code action" })
 
 vim.keymap.set("n", "<leader>sr", function()
   require("persistence").load()
@@ -267,6 +268,7 @@ require("lazy").setup({
             },
           },
         },
+        rename = { enabled = true },
       },
       keys = {
         {
@@ -311,6 +313,13 @@ require("lazy").setup({
           end,
           desc = "Notification History",
         },
+        {
+          "<leader>mv",
+          function()
+            Snacks.rename.rename_file()
+          end,
+          desc = "LSP-enabled Rename",
+        }
       },
     },
     {
