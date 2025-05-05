@@ -506,7 +506,7 @@ require("lazy").setup({
     {
       "saghen/blink.cmp",
       dependencies = { "rafamadriz/friendly-snippets" },
-      version = "1.*",
+      version = "1.2.0",
       opts = {
         keymap = { preset = "enter" },
         appearance = {
