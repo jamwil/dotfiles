@@ -3,7 +3,7 @@
   "autoclose.nvim": { "branch": "main", "commit": "b2077aa2c83df7ebc19b2a20a3a0654b24ae9c8f" },
   "barbar.nvim": { "branch": "master", "commit": "3a74402bdf04745a762de83d5c5e88e3e9b0e2e0" },
   "blink.cmp": { "branch": "main", "commit": "4f38ce99a472932d5776337f08f7a8180f1f571a" },
-  "conform.nvim": { "branch": "master", "commit": "372fc521f8421b7830ea6db4d6ea3bae1c77548c" },
+  "conform.nvim": { "branch": "master", "commit": "374aaf384e2e841607b8e2fe63fa3ad01d111c91" },
   "copilot.lua": { "branch": "master", "commit": "2fe34db04570f6c47db0b752ca421a49b7357c03" },
   "diffview.nvim": { "branch": "main", "commit": "4516612fe98ff56ae0415a259ff6361a89419b0a" },
   "friendly-snippets": { "branch": "main", "commit": "572f5660cf05f8cd8834e096d7b4c921ba18e175" },

@@ -607,7 +607,7 @@ require("lazy").setup({
       priority = 1000,
     }
   },
-  checker = { enabled = true },
+  checker = { enabled = true, notify = false },
   install = { colorscheme = { "kanagawa" } },
 })
 
