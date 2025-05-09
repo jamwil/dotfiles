@@ -19,7 +19,7 @@ vim.opt.autoread = true
 vim.opt.swapfile = true
 
 -- Project-specific config
-vim.o.exrc = false
+vim.o.exrc = true
 
 -- Clipboard
 vim.opt.clipboard = ""
@@ -253,31 +253,37 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
   spec = {
     {
+      "nvim-neo-tree/neo-tree.nvim",
+      branch = "v3.x",
+      dependencies = {
+        "nvim-lua/plenary.nvim",
+        "nvim-tree/nvim-web-devicons",
+        "MunifTanjim/nui.nvim",
+      },
+      lazy = false, -- neo-tree will lazily load itself
+      opts = {
+        source_selector = {
+          winbar = true,
+          statusline = false,
+        },
+      },
+      keys = {
+        { "<leader>e", "<Cmd>Neotree<CR>", desc = "Focus neo-tree" },
+        { "<C-n>", "<Cmd>Neotree toggle<CR>", desc = "Toggle neo-tree" },
+      },
+    },
+    {
       "folke/snacks.nvim",
       priority = 1000,
       lazy = false,
       opts = {
         bigfile = { enabled = true },
-        explorer = { enabled = true },
         picker = {
           enabled = true,
-          sources = {
-            explorer = {
-              hidden = true,
-              ignored = true,
-            },
-          },
         },
         rename = { enabled = true },
       },
       keys = {
-        {
-          "<leader>e",
-          function()
-            Snacks.explorer()
-          end,
-          desc = "Toggle file explorer",
-        },
         {
           "<leader><space>",
           function()
@@ -596,17 +602,13 @@ require("lazy").setup({
       },
     },
     {
-      "uloco/bluloco.nvim",
+      "rebelot/kanagawa.nvim",
       lazy = false,
       priority = 1000,
-      dependencies = { "rktjmp/lush.nvim" },
-      config = function()
-        -- your optional config goes here, see below.
-      end,
-    },
+    }
   },
   checker = { enabled = true },
-  install = { colorscheme = { "blueloco" } },
+  install = { colorscheme = { "kanagawa" } },
 })
 
 -- GUI cmd key bindings
@@ -640,4 +642,4 @@ end
 
 -- colorscheme
 vim.opt.termguicolors = true
-vim.cmd("colorscheme bluloco")
+vim.cmd("colorscheme kanagawa-dragon")
