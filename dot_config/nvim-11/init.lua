@@ -450,7 +450,7 @@ require("lazy").setup({
     },
     {
       "hedyhli/outline.nvim",
-      cmd = { "Outline", "OutlineOpen" },
+      cmd = { "Outline", "OutlineOpen", "OutlineFocusOutline" },
       opts = {
         outline_window = {
           width = 50,
@@ -458,7 +458,7 @@ require("lazy").setup({
         },
       },
       keys = {
-        { "<leader>o", "<Cmd>Outline<CR>", "Outline" },
+        { "<leader>o", "<Cmd>OutlineOpen<CR><Cmd>OutlineFocusOutline<CR>", "Focus outline" },
       },
     },
     {
