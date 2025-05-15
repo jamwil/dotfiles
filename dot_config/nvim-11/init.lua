@@ -93,6 +93,9 @@ vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right win
 vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
 vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
 
+vim.keymap.set("v", "<", "<gv", { desc = "Dedent line(s)" })
+vim.keymap.set("v", ">", ">gv", { desc = "Indent line(s)" })
+
 vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { desc = "Go to declaration" })
 vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
 vim.keymap.set("n", "gi", vim.lsp.buf.implementation, { desc = "Go to implementation" })
@@ -607,6 +610,7 @@ require("lazy").setup({
       priority = 1000,
     }
   },
+  defaults = { version = "*" },
   checker = { enabled = true, notify = false },
   install = { colorscheme = { "kanagawa" } },
 })
