@@ -86,7 +86,7 @@ vim.api.nvim_create_autocmd("FileType", {
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic quickfix list" })
 
-vim.keymap.set("n", "<leader>b", "<cmd>enew<CR>", { desc = "buffer new" })
+vim.keymap.set("n", "<leader>n", "<cmd>enew<CR>", { desc = "buffer new" })
 
 vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "Move focus to the left window" })
 vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right window" })
@@ -102,16 +102,6 @@ vim.keymap.set("n", "gi", vim.lsp.buf.implementation, { desc = "Go to implementa
 vim.keymap.set("n", "gr", vim.lsp.buf.references, { desc = "Go to references" })
 vim.keymap.set("n", "ra", vim.lsp.buf.rename, { desc = "Rename symbol" })
 vim.keymap.set("n", "ca", vim.lsp.buf.code_action, { desc = "Code action" })
-
-vim.keymap.set("n", "<leader>sr", function()
-  require("persistence").load()
-end)
-
-vim.keymap.set("n", "<leader>dv", "<cmd>DiffviewOpen<CR>", { desc = "Open Diffview" })
-vim.keymap.set("n", "<leader>dh", "<cmd>DiffviewFileHistory<CR>", { desc = "Open DiffviewFileHistory" })
-
-vim.keymap.set("n", "<leader>ll", "<cmd>CopilotChatOpen<CR>", { desc = "Open Copilot Chat" })
-vim.keymap.set("v", "<leader>ll", "<cmd>CopilotChatOpen<CR>", { desc = "Open Copilot Chat" })
 
 -- lua-language-server
 vim.lsp.config["lua-language-server"] = {
@@ -552,6 +542,10 @@ require("lazy").setup({
           },
         },
       },
+      keys = {
+        { "<leader>dv", "<cmd>DiffviewOpen<CR>" },
+        { "<leader>dh", "<cmd>DiffviewFileHistory<CR>" },
+      },
     },
     {
       "zbirenbaum/copilot.lua",
@@ -580,10 +574,18 @@ require("lazy").setup({
       event = "InsertEnter",
       opts = {
         allow_insecure = true,
-        model = "claude-3.7-sonnet",
+        model = "gpt-4.1",
         chat_autocomplete = true,
         window = {
-          width = 80,
+          width = 0.4,
+        },
+        selection = function(source)
+          local select = require("CopilotChat.select")
+          return select.visual(source) or select.buffer(source)
+        end,
+        keys = {
+          { "<leader>ll", "<cmd>CopilotChatOpen<CR>", "n" },
+          { "<leader>ll", "<cmd>CopilotChatOpen<CR>", "v" },
         },
       },
     },
@@ -591,6 +593,14 @@ require("lazy").setup({
       "folke/persistence.nvim",
       event = "BufReadPre",
       opts = {},
+      keys = {
+        {
+          "<leader>sr",
+          function()
+            require("persistence").load()
+          end,
+        },
+      },
     },
     {
       "linux-cultist/venv-selector.nvim",
