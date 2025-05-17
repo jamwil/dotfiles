@@ -41,9 +41,6 @@ vim.opt.smartcase = true
 -- Decrease update time
 vim.opt.updatetime = 250
 
--- Decrease mapped sequence wait time
-vim.opt.timeoutlen = 300
-
 -- Configure how new splits should be opened
 vim.opt.splitright = true
 vim.opt.splitbelow = true
@@ -456,7 +453,7 @@ require("lazy").setup({
     },
     {
       "m4xshen/autoclose.nvim",
-      event = { "BufEnter" },
+      event = { "InsertEnter" },
       opts = {
         options = {
           disabled_filetypes = { "text", "markdown" },
@@ -583,10 +580,10 @@ require("lazy").setup({
           local select = require("CopilotChat.select")
           return select.visual(source) or select.buffer(source)
         end,
-        keys = {
-          { "<leader>ll", "<cmd>CopilotChatOpen<CR>", "n" },
-          { "<leader>ll", "<cmd>CopilotChatOpen<CR>", "v" },
-        },
+      },
+      keys = {
+        { "<leader>ll", "<cmd>CopilotChatOpen<CR>", "n" },
+        { "<leader>ll", "<cmd>CopilotChatOpen<CR>", "v" },
       },
     },
     {
