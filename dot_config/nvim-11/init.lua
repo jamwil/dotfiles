@@ -163,21 +163,6 @@ vim.lsp.config["pyright"] = {
 }
 
 -- basedpyright
-local function set_python_path(path)
-  local clients = vim.lsp.get_clients({
-    bufnr = vim.api.nvim_get_current_buf(),
-    name = "basedpyright",
-  })
-  for _, client in ipairs(clients) do
-    if client.settings then
-      client.settings.python = vim.tbl_deep_extend("force", client.settings.python or {}, { pythonPath = path })
-    else
-      client.config.settings = vim.tbl_deep_extend("force", client.config.settings, { python = { pythonPath = path } })
-    end
-    client.notify("workspace/didChangeConfiguration", { settings = nil })
-  end
-end
-
 vim.lsp.config["basedpyright"] = {
   cmd = { "basedpyright-langserver", "--stdio" },
   filetypes = { "python" },
@@ -199,17 +184,43 @@ vim.lsp.config["basedpyright"] = {
       },
     },
   },
-  on_attach = function(client, bufnr)
-    vim.api.nvim_buf_create_user_command(0, "LspPyrightSetPythonPath", set_python_path, {
-      desc = "Reconfigure basedpyright with the provided python path",
-      nargs = 1,
-      complete = "file",
-    })
-  end,
 }
 
 -- Enable LSPs
 vim.lsp.enable({ "lua-language-server", "rust-analyzer", "ruff", "basedpyright" })
+
+-- Functions to auto-enable virtual environments in per-project .nvim.lua
+local uv = vim.loop
+
+function _G.set_unix_venv(venv_path)
+  local bin_path = venv_path .. "/bin"
+  local python3 = bin_path .. "/python"
+  if uv.fs_stat(bin_path) then
+    local old_path = vim.env.PATH or os.getenv("PATH")
+    if not old_path:find(bin_path, 1, true) then
+      vim.env.PATH = bin_path .. ":" .. old_path
+    end
+    vim.env.VIRTUAL_ENV = venv_path
+    if uv.fs_stat(python3) then
+      vim.g.python3_host_prog = python3
+    end
+  end
+end
+
+function _G.set_windows_venv(venv_path)
+  local scripts_path = venv_path .. "\\Scripts"
+  local python3 = scripts_path .. "\\python.exe"
+  if uv.fs_stat(scripts_path) then
+    local old_path = vim.env.PATH or os.getenv("PATH")
+    if not old_path:find(scripts_path, 1, true) then
+      vim.env.PATH = scripts_path .. ";" .. old_path
+    end
+    vim.env.VIRTUAL_ENV = venv_path
+    if uv.fs_stat(python3) then
+      vim.g.python3_host_prog = python3
+    end
+  end
+end
 
 -- Rounded borders
 vim.o.winborder = "rounded"
@@ -393,6 +404,7 @@ require("lazy").setup({
       dependencies = { "nvim-tree/nvim-web-devicons" },
       opts = {
         options = { theme = "auto" },
+        sections = { lualine_x = { "encoding", "fileformat", "filetype" } },
       },
     },
     {
@@ -469,7 +481,6 @@ require("lazy").setup({
       main = "nvim-treesitter.configs",
       opts = {
         ensure_installed = {
-          "bash",
           "c",
           "css",
           "diff",
@@ -597,18 +608,6 @@ require("lazy").setup({
             require("persistence").load()
           end,
         },
-      },
-    },
-    {
-      "linux-cultist/venv-selector.nvim",
-      branch = "regexp",
-      opts = {
-        picker = "auto",
-      },
-      event = "VeryLazy",
-      keys = {
-        { "<leader>vs", "<cmd>VenvSelect<cr>" },
-        { "<leader>vc", "<cmd>VenvSelectCached<cr>" },
       },
     },
     {
