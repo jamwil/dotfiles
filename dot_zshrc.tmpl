@@ -1,7 +1,12 @@
 alias ll='lsd -alhF'
 alias cloc='cloc --vcs=git'
 alias nginx='nginx -g "daemon off;"'
-alias cargo-update="cargo install $(cargo install --list | grep -E '^[a-z0-9_-]+ v[0-9.]+:$' | cut -f1 -d' ')"
+
+{{ if eq .chezmoi.os "linux" }}
+{{   if (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
+alias neovide='/mnt/c/Program\ Files/Neovide/neovide.exe --wsl'
+{{   end }}
+{{ end }}
 
 # Mac-specific
 {{ if (eq .chezmoi.os "darwin") -}}
@@ -33,16 +38,14 @@ export GPG_TTY=$TTY
 export RICH_THEME=monokai
 export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 
-# pyenv
-export PYENV_ROOT="$HOME/.pyenv"
-command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
-
 # Package manager paths
 export PATH="$HOME/bin:$PATH"
-export PATH="$PATH:$HOME/.cargo/bin"
 export PATH="$PATH:$HOME/go/bin"
 export PATH="$PATH:/Users/jamwil/.dotnet/tools"
+
+# Cargo
+export PATH="$PATH:$HOME/.cargo/bin"
+alias cargo-update="cargo install $(cargo install --list | grep -E '^[a-z0-9_-]+ v[0-9.]+:$' | cut -f1 -d' ')"
 
 # iterm2
 test -e $HOME/.iterm2_shell_integration.zsh && source $HOME/.iterm2_shell_integration.zsh || true
