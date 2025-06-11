@@ -314,13 +314,6 @@ require("lazy").setup({
           desc = "Command History",
         },
         {
-          "<leader>n",
-          function()
-            Snacks.picker.notifications()
-          end,
-          desc = "Notification History",
-        },
-        {
           "<leader>mv",
           function()
             Snacks.rename.rename_file()
@@ -467,11 +460,14 @@ require("lazy").setup({
       "m4xshen/autoclose.nvim",
       event = { "InsertEnter" },
       opts = {
+        keys = {
+          ["'"] = { escape = true, close = false, pair = "''" },
+        },
         options = {
           disabled_filetypes = { "text", "markdown" },
           disable_when_touch = true,
           pair_spaces = true,
-          disable_command_mode = true,
+          disable_command_mode = false,
         },
       },
     },
@@ -582,7 +578,6 @@ require("lazy").setup({
       event = "InsertEnter",
       opts = {
         allow_insecure = true,
-        model = "gpt-4.1",
         chat_autocomplete = true,
         window = {
           width = 0.4,
