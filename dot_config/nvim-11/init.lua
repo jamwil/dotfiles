@@ -577,7 +577,6 @@ require("lazy").setup({
       cmd = { "CopilotChat", "CopilotChatOpen" },
       event = "InsertEnter",
       opts = {
-        allow_insecure = true,
         chat_autocomplete = true,
         window = {
           width = 0.4,
