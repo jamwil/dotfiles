@@ -84,8 +84,13 @@ vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic quickfix list" })
 vim.keymap.set("n", "K", function()
-  vim.diagnostic.open_float({ scope = "cursor" })
-end, { desc = "Show diagnostics" })
+  local diagnostics = vim.diagnostic.get(0, { lnum = vim.api.nvim_win_get_cursor(0)[1] - 1 })
+  if diagnostics and #diagnostics > 0 then
+    vim.diagnostic.open_float({ scope = "cursor" })
+  else
+    vim.lsp.buf.hover()
+  end
+end, { desc = "Show diagnostics or hover" })
 
 vim.keymap.set("n", "<leader>n", "<cmd>enew<CR>", { desc = "buffer new" })
 
