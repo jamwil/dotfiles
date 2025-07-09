@@ -81,7 +81,11 @@ vim.api.nvim_create_autocmd("FileType", {
 
 -- Keybindings
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
+
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic quickfix list" })
+vim.keymap.set("n", "K", function()
+  vim.diagnostic.open_float({ scope = "cursor" })
+end, { desc = "Show diagnostics" })
 
 vim.keymap.set("n", "<leader>n", "<cmd>enew<CR>", { desc = "buffer new" })
 
@@ -224,14 +228,6 @@ end
 
 -- Rounded borders
 vim.o.winborder = "rounded"
-
--- Virtual lines for diagnostics
-vim.diagnostic.config({
-  virtual_lines = {
-    -- Only show virtual line diagnostics for the current cursor line
-    current_line = true,
-  },
-})
 
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
