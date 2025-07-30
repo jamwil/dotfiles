@@ -509,7 +509,7 @@ require("lazy").setup({
     },
     {
       "saghen/blink.cmp",
-      dependencies = { "rafamadriz/friendly-snippets" },
+      dependencies = { "rafamadriz/friendly-snippets", "L3MON4D3/LuaSnip" },
       version = "1.2.0",
       opts = {
         keymap = { preset = "enter" },
@@ -519,6 +519,9 @@ require("lazy").setup({
         completion = {
           documentation = { auto_show = false },
           list = { selection = { preselect = true, auto_insert = false } },
+        },
+        snippets = {
+          preset = "luasnip",
         },
         signature = { enabled = true, window = { show_documentation = false } },
         sources = {
