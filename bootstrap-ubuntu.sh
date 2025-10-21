@@ -4,7 +4,8 @@ read -p "Proceed with updating package list and installing dependencies? (y/n): 
 if [[ $choice == 'y' ]]; then
     sudo apt-get update
     sudo apt-get install -y curl git build-essential libssl-dev zlib1g-dev \
-        libbz2-dev libreadline-dev libsqlite3-dev wget libffi-dev
+        libbz2-dev libreadline-dev libsqlite3-dev wget libffi-dev \
+        lsd fzf ripgrep
 fi
 
 read -p "Proceed with installing chezmoi? (y/n): " choice
@@ -23,19 +24,14 @@ if [[ $choice == 'y' ]]; then
     curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
 fi
 
-read -p "Proceed with installing lsd? (y/n): " choice
-if [[ $choice == 'y' ]]; then
-    sudo apt-get install -y lsd
-fi
-
-read -p "Proceed with installing pyenv? (y/n): " choice
-if [[ $choice == 'y' ]]; then
-    curl https://pyenv.run | bash
-fi
-
 read -p "Proceed with installing direnv (y/n): " choice
 if [[ $choice == 'y' ]]; then
     sudo apt-get install -y direnv
+fi
+
+read -p "Proceed with installing uv (y/n): " choice
+if [[ $choice == 'y' ]]; then
+    curl -LsSf https://astral.sh/uv/install.sh | sh
 fi
 
 read -p "Proceed with cloning powerlevel10k into ~/powerlevel10k? (y/n): " choice
