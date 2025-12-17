@@ -256,7 +256,7 @@ require("lazy").setup({
   spec = {
     {
       "nvim-neo-tree/neo-tree.nvim",
-      branch = "v3.x",
+      version = "3.38.0",
       dependencies = {
         "nvim-lua/plenary.nvim",
         "nvim-tree/nvim-web-devicons",
@@ -276,6 +276,7 @@ require("lazy").setup({
     },
     {
       "folke/snacks.nvim",
+      version = "v2.30.0",
       priority = 1000,
       lazy = false,
       opts = {
@@ -325,6 +326,7 @@ require("lazy").setup({
     },
     {
       "lewis6991/gitsigns.nvim",
+      version = "v1.0.2",
       opts = {
         on_attach = function(bufnr)
           local gitsigns = require("gitsigns")
@@ -380,6 +382,7 @@ require("lazy").setup({
     },
     {
       "romgrk/barbar.nvim",
+      version = "v1.9.1",
       lazy = false,
       dependencies = {
         "lewis6991/gitsigns.nvim",
@@ -395,6 +398,7 @@ require("lazy").setup({
     },
     {
       "nvim-lualine/lualine.nvim",
+      commit = "47f91c416daef12db467145e16bed5bbfe00add8",
       dependencies = { "nvim-tree/nvim-web-devicons" },
       opts = {
         options = { theme = "auto" },
@@ -403,6 +407,7 @@ require("lazy").setup({
     },
     {
       "stevearc/conform.nvim",
+      version = "v9.1.0",
       event = { "BufWritePre" },
       cmd = { "ConformInfo" },
       keys = {
@@ -446,6 +451,7 @@ require("lazy").setup({
     },
     {
       "hedyhli/outline.nvim",
+      version = "v1.1.0",
       cmd = { "Outline", "OutlineOpen", "OutlineFocusOutline" },
       opts = {
         outline_window = {
@@ -459,6 +465,7 @@ require("lazy").setup({
     },
     {
       "m4xshen/autoclose.nvim",
+      commit = "3f86702b54a861a17d7994b2e32a7c648cb12fb1",
       event = { "InsertEnter" },
       opts = {
         keys = {
@@ -474,6 +481,7 @@ require("lazy").setup({
     },
     {
       "nvim-treesitter/nvim-treesitter",
+      version = "v0.10.0",
       build = ":TSUpdate",
       main = "nvim-treesitter.configs",
       opts = {
@@ -509,8 +517,8 @@ require("lazy").setup({
     },
     {
       "saghen/blink.cmp",
-      dependencies = { "rafamadriz/friendly-snippets", "L3MON4D3/LuaSnip" },
       version = "1.2.0",
+      dependencies = { "rafamadriz/friendly-snippets", "L3MON4D3/LuaSnip" },
       opts = {
         keymap = { preset = "enter" },
         appearance = {
@@ -542,6 +550,7 @@ require("lazy").setup({
     },
     {
       "sindrets/diffview.nvim",
+      commit = "4516612fe98ff56ae0415a259ff6361a89419b0a",
       cmd = { "Diffview", "DiffviewOpen", "DiffviewFileHistory" },
       opts = {
         view = {
@@ -556,48 +565,8 @@ require("lazy").setup({
       },
     },
     {
-      "zbirenbaum/copilot.lua",
-      cmd = "Copilot",
-      event = "InsertEnter",
-      opts = {
-        suggestion = {
-          auto_trigger = false,
-          keymap = {
-            accept = "<M-\\>",
-            accept_word = "<M-'>",
-            accept_line = "<M-;>",
-            dismiss = "<C-]>",
-            next = "<M-]>",
-          },
-        },
-      },
-    },
-    {
-      "CopilotC-Nvim/CopilotChat.nvim",
-      dependencies = {
-        { "zbirenbaum/copilot.lua" },
-        { "nvim-lua/plenary.nvim", branch = "master" },
-      },
-      cmd = { "CopilotChat", "CopilotChatOpen" },
-      event = "InsertEnter",
-      opts = {
-        allow_insecure = true,
-        chat_autocomplete = true,
-        window = {
-          width = 0.4,
-        },
-        selection = function(source)
-          local select = require("CopilotChat.select")
-          return select.visual(source) or select.buffer(source)
-        end,
-      },
-      keys = {
-        { "<leader>ll", "<cmd>CopilotChatOpen<CR>", "n" },
-        { "<leader>ll", "<cmd>CopilotChatOpen<CR>", "v" },
-      },
-    },
-    {
       "folke/persistence.nvim",
+      version = "v3.1.0",
       event = "BufReadPre",
       opts = {},
       keys = {
@@ -611,11 +580,12 @@ require("lazy").setup({
     },
     {
       "rebelot/kanagawa.nvim",
+      commit = "dddad424b0e22946cd0aa89a67c95fd7781ff814",
       lazy = false,
       priority = 1000,
     },
   },
-  defaults = { version = "*" },
+  defaults = {},
   checker = { enabled = true, notify = false },
   install = { colorscheme = { "kanagawa" } },
 })
