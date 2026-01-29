@@ -238,7 +238,7 @@ vim.o.winborder = "rounded"
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
   local lazyrepo = "https://github.com/folke/lazy.nvim.git"
-  local branch = "v11.17.5"
+  local branch = "stable"
   local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=" .. branch, lazyrepo, lazypath })
   if vim.v.shell_error ~= 0 then
     vim.api.nvim_echo({
@@ -256,12 +256,16 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
   spec = {
     {
+      "folke/lazy.nvim",
+      version = "v11.17.5",
+    },
+    {
       "nvim-neo-tree/neo-tree.nvim",
       version = "3.38.0",
       dependencies = {
-        "nvim-lua/plenary.nvim",
-        "nvim-tree/nvim-web-devicons",
-        "MunifTanjim/nui.nvim",
+        { "nvim-lua/plenary.nvim", commit = "b9fd5226c2f76c951fc8ed5923d85e4de065e509" },
+        { "nvim-tree/nvim-web-devicons", branch = "master" },
+        { "MunifTanjim/nui.nvim", version = "v0.4.0" },
       },
       lazy = false, -- neo-tree will lazily load itself
       opts = {
@@ -382,8 +386,8 @@ require("lazy").setup({
       },
     },
     {
-      "romgrk/barbar.nvim",
-      version = "v1.9.1",
+      "jamwil/barbar.nvim",
+      version = "v1.9.2-jamwil.1",
       lazy = false,
       dependencies = {
         "lewis6991/gitsigns.nvim",
@@ -519,7 +523,10 @@ require("lazy").setup({
     {
       "saghen/blink.cmp",
       version = "1.2.0",
-      dependencies = { "rafamadriz/friendly-snippets", "L3MON4D3/LuaSnip" },
+      dependencies = {
+        { "rafamadriz/friendly-snippets", commit = "572f5660cf05f8cd8834e096d7b4c921ba18e175" },
+        { "L3MON4D3/LuaSnip", version = "v2.4.1" },
+      },
       opts = {
         keymap = { preset = "enter" },
         appearance = {
