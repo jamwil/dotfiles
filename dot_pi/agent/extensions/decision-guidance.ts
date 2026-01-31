@@ -26,7 +26,7 @@ import type {
     TextContent,
     ToolResultMessage,
 } from "@mariozechner/pi-ai"
-import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent"
+import type { ExtensionAPI } from "@mariozechner/pi-coding-agent"
 
 interface GuidanceRule {
     id: string
@@ -165,17 +165,6 @@ Try: Read the file again to get the exact current content before editing.`,
 - Verify working directory and file paths
 - Check environment variables and permissions
 - Read error output carefully for specific hints`,
-    },
-
-    {
-        id: "long-trajectory",
-        description: "Detect long trajectories that may need compaction",
-        priority: 3,
-        detect: (ctx) => ctx.turnCount > 20,
-        guidance: `[GUIDANCE] This is a long conversation. Consider:
-- Summarize progress so far if the context is getting cluttered
-- Focus on the immediate next step rather than re-explaining history
-- If stuck, consider starting fresh with lessons learned`,
     },
 
     {

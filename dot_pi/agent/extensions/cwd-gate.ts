@@ -11,6 +11,35 @@ import * as path from "path"
 
 export default function (pi: ExtensionAPI) {
     const cwd = process.cwd()
+    const AUTO_DENY_TIMEOUT_MS = 90_000
+
+    async function selectWithAutoDeny(
+        ctx: { ui: { select: (message: string, options: string[]) => Promise<string> } },
+        message: string,
+        options: string[],
+        timeoutMs = AUTO_DENY_TIMEOUT_MS,
+        timeoutDefault = "No",
+    ): Promise<{ choice: string; timedOut: boolean }> {
+        const timeoutSentinel = "__timeout__"
+        let timeoutId: NodeJS.Timeout | undefined
+
+        try {
+            const result = await Promise.race([
+                ctx.ui.select(message, options),
+                new Promise<string>((resolve) => {
+                    timeoutId = setTimeout(() => resolve(timeoutSentinel), timeoutMs)
+                }),
+            ])
+
+            if (result === timeoutSentinel) {
+                return { choice: timeoutDefault, timedOut: true }
+            }
+
+            return { choice: result, timedOut: false }
+        } finally {
+            if (timeoutId) clearTimeout(timeoutId)
+        }
+    }
 
     function expandHome(p: string): string {
         if (p === "~" || p.startsWith("~/")) {
@@ -73,12 +102,23 @@ export default function (pi: ExtensionAPI) {
             if (toolName === "bash") {
                 message += `Command:\n${event.input.command}\n\n`
             }
-            message += `Targeting:\n${uniquePaths.join("\n")}\n\nAllow?`
+            message += `Targeting:\n${uniquePaths.join("\n")}\n\nAllow? (auto-deny in 90s)`
 
-            const choice = await ctx.ui.select(message, ["Yes", "No"])
+            const { choice, timedOut } = await selectWithAutoDeny(
+                ctx,
+                message,
+                ["Yes", "No"],
+                AUTO_DENY_TIMEOUT_MS,
+                "No",
+            )
 
             if (choice !== "Yes") {
-                return { block: true, reason: "Blocked by user" }
+                return {
+                    block: true,
+                    reason: timedOut
+                        ? "Auto-denied (no selection within 90 seconds)"
+                        : "Blocked by user",
+                }
             }
         }
 
