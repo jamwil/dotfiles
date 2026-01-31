@@ -10,6 +10,8 @@ const patterns = [
 	/(?:\bdd\b.*\bof=\/dev\/|>\s*\/dev\/|>>\s*\/dev\/|>\s*\/etc\/|>\s*\/proc\/|>\s*\/sys\/)/i,
 	/\b(?:curl|wget|fetch)\b.*\|\s*(?:sh|bash|zsh|sudo)/i,
 	/\bgit\b.*\b(reset\s+--hard|clean\s+-fdx|checkout\s+-f)\b/i,
+	/\bgit\b.*\bpush\b/i,
+	/\bgh\b/i,
 	/\bdocker\b.*\b(system\s+prune|rm\s+-f|rmi\s+-f|volume\s+rm|container\s+prune)\b/i,
 	/\b(chmod|chown)\b.*\b\/\b/i
 ];
@@ -26,6 +28,8 @@ const tests = [
 	"sudo apt update",
 	"git status",
 	"git reset --hard HEAD",
+	"git push origin main",
+	"gh pr list",
 	"docker ps",
 	"docker rm -f mycontainer",
 	"chown -R root:root /",
