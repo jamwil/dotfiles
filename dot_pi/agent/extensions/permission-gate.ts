@@ -50,7 +50,9 @@ export default function (pi: ExtensionAPI) {
         // Windows-ish equivalents (often used inside Git Bash / MSYS shells too)
         /\b(?:del|erase)\b/i,
         /\b(?:rmdir|rd)\b/i,
-        /\b(?:format|diskpart|bcdedit)\b/i,
+        /\b(?:diskpart|bcdedit)\b/i,
+        /(?:^|(?:&&|&|\|\||;)\s*)format(?:\.com|\.exe)?(?=\s|$)/i,
+        /\bcmd(?:\.exe)?\s+\/c\s+format(?:\.com|\.exe)?(?=\s|$)/i,
         /\b(?:icacls|takeown)\b/i,
         /\b(?:powershell|pwsh)\b.*\b(?:Remove-Item|Format-Volume|Clear-Disk|Set-Acl)\b/i,
     ]

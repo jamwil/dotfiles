@@ -17,7 +17,9 @@ const patterns = [
     // Windows-ish equivalents (often used inside Git Bash / MSYS shells too)
     /\b(?:del|erase)\b/i,
     /\b(?:rmdir|rd)\b/i,
-    /\b(?:format|diskpart|bcdedit)\b/i,
+    /\b(?:diskpart|bcdedit)\b/i,
+    /(?:^|(?:&&|&|\|\||;)\s*)format(?:\.com|\.exe)?(?=\s|$)/i,
+    /\bcmd(?:\.exe)?\s+\/c\s+format(?:\.com|\.exe)?(?=\s|$)/i,
     /\b(?:icacls|takeown)\b/i,
     /\b(?:powershell|pwsh)\b.*\b(?:Remove-Item|Format-Volume|Clear-Disk|Set-Acl)\b/i,
 ]
@@ -26,6 +28,11 @@ const tests = [
     "echo hello",
     "ls -la",
     "cat README.md",
+
+    // Common formatter commands (should stay allowed)
+    "ruff format .",
+    "npm run format",
+    "prettier --write src",
 
     // Network fetch
     "curl http://example.org",
@@ -59,6 +66,8 @@ const tests = [
     "rmdir /s /q C:\\temp\\dir",
     "rd /s /q .\\build",
     "diskpart /s script.txt",
+    "format C: /Q",
+    "cmd /c format D: /Q",
     "icacls C:\\ /grant Everyone:F",
     "pwsh -Command Remove-Item -Recurse -Force C:\\temp",
 ]
