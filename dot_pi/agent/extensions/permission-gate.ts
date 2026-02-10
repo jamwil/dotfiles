@@ -1,41 +1,30 @@
 /**
  * Permission Gate Extension
  *
- * Prompts for confirmation before running potentially dangerous bash commands.
- * Patterns checked: rm -rf, sudo, chmod/chown 777
+ * Prompts for confirmation before running potentially dangerous shell commands.
+ *
+ * Note: Despite the tool name being "bash", on Windows this typically runs via
+ * Git Bash / MSYS2 / Cygwin (depending on user setup). This extension aims to
+ * be robust across platforms.
  */
 
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent"
+import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent"
 
 export default function (pi: ExtensionAPI) {
     const AUTO_DENY_TIMEOUT_MS = 90_000
 
-    async function selectWithAutoDeny(
-        ctx: { ui: { select: (message: string, options: string[]) => Promise<string> } },
-        message: string,
-        options: string[],
+    async function selectYesNoWithAutoDeny(
+        ctx: ExtensionContext,
+        title: string,
         timeoutMs = AUTO_DENY_TIMEOUT_MS,
-        timeoutDefault = "No",
-    ): Promise<{ choice: string; timedOut: boolean }> {
-        const timeoutSentinel = "__timeout__"
-        let timeoutId: NodeJS.Timeout | undefined
+    ): Promise<{ allowed: boolean; timedOut: boolean }> {
+        const choice = await ctx.ui.select(title, ["Yes", "No"], { timeout: timeoutMs })
 
-        try {
-            const result = await Promise.race([
-                ctx.ui.select(message, options),
-                new Promise<string>((resolve) => {
-                    timeoutId = setTimeout(() => resolve(timeoutSentinel), timeoutMs)
-                }),
-            ])
-
-            if (result === timeoutSentinel) {
-                return { choice: timeoutDefault, timedOut: true }
-            }
-
-            return { choice: result, timedOut: false }
-        } finally {
-            if (timeoutId) clearTimeout(timeoutId)
+        if (choice === undefined) {
+            return { allowed: false, timedOut: true }
         }
+
+        return { allowed: choice === "Yes", timedOut: false }
     }
 
     // Allow-list for specific safe commands. Keep empty for now; populate with RegExp entries
@@ -46,7 +35,7 @@ export default function (pi: ExtensionAPI) {
         /\brm\s+(-rf?|--recursive)/i,
         /\bsudo\b/i,
         /\b(?:chmod|chown)\b/i,
-        /\b(?:curl|wget)\b/i,
+        /\b(?:curl|wget|fetch)\b/i,
         /\bdd\b/i,
         /\b(?:mkfs|fdisk|parted|sfdisk|gdisk)\b/i,
         /\b(?:shred|wipe)\b/i,
@@ -57,12 +46,23 @@ export default function (pi: ExtensionAPI) {
         /\bgit\b.*\bpush\b/i,
         /\bgh\b/i,
         /\bdocker\b.*\b(system\s+prune|rm\s+-f|rmi\s+-f|volume\s+rm|container\s+prune)\b/i,
+
+        // Windows-ish equivalents (often used inside Git Bash / MSYS shells too)
+        /\b(?:del|erase)\b/i,
+        /\b(?:rmdir|rd)\b/i,
+        /\b(?:format|diskpart|bcdedit)\b/i,
+        /\b(?:icacls|takeown)\b/i,
+        /\b(?:powershell|pwsh)\b.*\b(?:Remove-Item|Format-Volume|Clear-Disk|Set-Acl)\b/i,
     ]
 
     pi.on("tool_call", async (event, ctx) => {
         if (event.toolName !== "bash") return undefined
 
-        const command = event.input.command as string
+        const command =
+            typeof (event.input as any)?.command === "string"
+                ? ((event.input as any).command as string)
+                : ""
+
         const isDangerous = dangerousPatterns.some((p) => p.test(command))
 
         // If command matches allow-list, treat as safe
@@ -74,20 +74,15 @@ export default function (pi: ExtensionAPI) {
                 return { block: true, reason: "Dangerous command blocked (no UI for confirmation)" }
             }
 
-            const { choice, timedOut } = await selectWithAutoDeny(
+            const { allowed, timedOut } = await selectYesNoWithAutoDeny(
                 ctx,
                 `⚠️ Dangerous command:\n\n  ${command}\n\nAllow? (auto-deny in 90s)`,
-                ["Yes", "No"],
-                AUTO_DENY_TIMEOUT_MS,
-                "No",
             )
 
-            if (choice !== "Yes") {
+            if (!allowed) {
                 return {
                     block: true,
-                    reason: timedOut
-                        ? "Auto-denied (no selection within 90 seconds)"
-                        : "Blocked by user",
+                    reason: timedOut ? "Cancelled (no selection)" : "Blocked by user",
                 }
             }
         }
