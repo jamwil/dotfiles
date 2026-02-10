@@ -2,15 +2,23 @@
  * CWD Gate Extension
  *
  * Prompts for confirmation before reading, writing, editing, or executing files
- * that are not within or a descendant of the current working directory.
+ * that are not within:
+ * - the current working directory
+ * - pi's agent directory (global extensions/skills/prompts/themes/settings)
  */
 
 import * as os from "node:os"
 import * as path from "node:path"
-import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent"
+import {
+    type ExtensionAPI,
+    type ExtensionContext,
+    getAgentDir,
+} from "@mariozechner/pi-coding-agent"
 
 export default function (pi: ExtensionAPI) {
     const AUTO_DENY_TIMEOUT_MS = 90_000
+    // Uses pi's configured agent dir (e.g. ~/.pi/agent by default, cross-platform).
+    const AGENT_DIR = path.resolve(getAgentDir())
 
     async function selectYesNoWithAutoDeny(
         ctx: ExtensionContext,
@@ -48,23 +56,44 @@ export default function (pi: ExtensionAPI) {
         return process.platform === "win32" ? normalized.toLowerCase() : normalized
     }
 
-    function isOutsideCwd(baseCwd: string, targetPath: string): boolean {
+    function isEqualOrDescendant(rootPath: string, targetPath: string): boolean {
+        const rootResolved = path.resolve(rootPath)
+        const targetResolved = path.resolve(targetPath)
+
+        // Prefix match with separator avoids false positives like:
+        //   C:\\foo vs C:\\foobar
+        const rootPrefix = rootResolved.endsWith(path.sep)
+            ? rootResolved
+            : `${rootResolved}${path.sep}`
+
+        const rootCmp = normalizeForCompare(rootResolved)
+        const rootPrefixCmp = normalizeForCompare(rootPrefix)
+        const targetCmp = normalizeForCompare(targetResolved)
+
+        return targetCmp === rootCmp || targetCmp.startsWith(rootPrefixCmp)
+    }
+
+    function getTrustedRoots(baseCwd: string): string[] {
+        const rootsByCompare = new Map<string, string>()
+
+        for (const root of [path.resolve(baseCwd), AGENT_DIR]) {
+            rootsByCompare.set(normalizeForCompare(root), root)
+        }
+
+        return Array.from(rootsByCompare.values())
+    }
+
+    function isOutsideTrustedRoots(
+        baseCwd: string,
+        targetPath: string,
+        trustedRoots: string[],
+    ): boolean {
         const expanded = normalizeToolPathArg(targetPath)
 
         const baseResolved = path.resolve(baseCwd)
         const targetResolved = path.resolve(baseResolved, expanded)
 
-        // Prefix match with separator avoids false positives like:
-        //   C:\\foo vs C:\\foobar
-        const basePrefix = baseResolved.endsWith(path.sep)
-            ? baseResolved
-            : `${baseResolved}${path.sep}`
-
-        const baseCmp = normalizeForCompare(basePrefix)
-        const targetCmp = normalizeForCompare(targetResolved)
-        const baseCmpNoSep = normalizeForCompare(baseResolved)
-
-        return !(targetCmp === baseCmpNoSep || targetCmp.startsWith(baseCmp))
+        return !trustedRoots.some((root) => isEqualOrDescendant(root, targetResolved))
     }
 
     function looksLikePossiblyDangerousPathToken(token: string): boolean {
@@ -85,13 +114,14 @@ export default function (pi: ExtensionAPI) {
         const toolName = event.toolName
         const suspiciousPaths: string[] = []
         const cwd = ctx.cwd
+        const trustedRoots = getTrustedRoots(cwd)
 
         if (toolName === "read" || toolName === "write" || toolName === "edit") {
             const p =
                 typeof (event.input as any)?.path === "string"
                     ? ((event.input as any).path as string)
                     : ""
-            if (p && isOutsideCwd(cwd, p)) {
+            if (p && isOutsideTrustedRoots(cwd, p, trustedRoots)) {
                 suspiciousPaths.push(p)
             }
         } else if (toolName === "bash") {
@@ -101,7 +131,7 @@ export default function (pi: ExtensionAPI) {
                     : ""
 
             // Naive tokenization to find potential paths.
-            // Goal is to catch obvious "outside cwd" paths without lots of false positives.
+            // Goal is to catch obvious "outside trusted roots" paths without lots of false positives.
             const tokens = command.split(/\s+/)
 
             for (const token of tokens) {
@@ -110,7 +140,7 @@ export default function (pi: ExtensionAPI) {
 
                 if (!looksLikePossiblyDangerousPathToken(cleanToken)) continue
 
-                if (isOutsideCwd(cwd, cleanToken)) {
+                if (isOutsideTrustedRoots(cwd, cleanToken, trustedRoots)) {
                     suspiciousPaths.push(cleanToken)
                 }
             }
@@ -124,11 +154,11 @@ export default function (pi: ExtensionAPI) {
             if (!ctx.hasUI) {
                 return {
                     block: true,
-                    reason: `Operation targets files outside CWD (${cwd}): ${uniquePaths.join(", ")}`,
+                    reason: `Operation targets paths outside trusted roots (${trustedRoots.join(", ")}): ${uniquePaths.join(", ")}`,
                 }
             }
 
-            let title = `⚠️  Outside CWD Detected (${cwd})\n\n`
+            let title = `⚠️  Outside Trusted Roots\n\nAllowed:\n${trustedRoots.join("\n")}\n\n`
             if (toolName === "bash") {
                 title += `Command:\n${(event.input as any).command}\n\n`
             }
