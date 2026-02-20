@@ -20,6 +20,31 @@ export default function (pi: ExtensionAPI) {
     // Uses pi's configured agent dir (e.g. ~/.pi/agent by default, cross-platform).
     const AGENT_DIR = path.resolve(getAgentDir())
 
+    type StoredDecision = { root: string; allowed: boolean }
+    const rememberedDecisions = new Map<string, StoredDecision>()
+
+    function normalizeDecisionKey(p: string): string {
+        return normalizeForCompare(path.resolve(p))
+    }
+
+    function rememberDecision(rootPath: string, allowed: boolean): void {
+        const resolvedRoot = path.resolve(rootPath)
+        rememberedDecisions.set(normalizeDecisionKey(resolvedRoot), {
+            root: resolvedRoot,
+            allowed,
+        })
+    }
+
+    function findRememberedDecision(targetResolved: string): StoredDecision | undefined {
+        for (const decision of rememberedDecisions.values()) {
+            if (isEqualOrDescendant(decision.root, targetResolved)) {
+                return decision
+            }
+        }
+
+        return undefined
+    }
+
     async function selectYesNoWithAutoDeny(
         ctx: ExtensionContext,
         title: string,
@@ -121,14 +146,17 @@ export default function (pi: ExtensionAPI) {
         baseCwd: string,
         targetPath: string,
         trustedRoots: string[],
-    ): boolean {
+    ): { outside: boolean; resolved: string } {
         const expanded = normalizeToolPathArg(targetPath)
 
         const baseResolved = path.resolve(baseCwd)
         const targetResolved = path.resolve(baseResolved, expanded)
 
-        return !trustedRoots.some((root) => isEqualOrDescendant(root, targetResolved))
+        const outside = !trustedRoots.some((root) => isEqualOrDescendant(root, targetResolved))
+        return { outside, resolved: targetResolved }
     }
+
+    type SuspiciousPath = { original: string; resolved: string }
 
     function looksLikePossiblyDangerousPathToken(token: string): boolean {
         if (!token) return false
@@ -146,7 +174,7 @@ export default function (pi: ExtensionAPI) {
 
     pi.on("tool_call", async (event, ctx) => {
         const toolName = event.toolName
-        const suspiciousPaths: string[] = []
+        const suspiciousPaths: SuspiciousPath[] = []
         // On Windows, ctx.cwd may be provided in MSYS/Git-Bash form (/c/...) depending
         // on how pi was launched.
         const cwd = normalizeToolPathArg(ctx.cwd)
@@ -157,8 +185,11 @@ export default function (pi: ExtensionAPI) {
                 typeof (event.input as any)?.path === "string"
                     ? ((event.input as any).path as string)
                     : ""
-            if (p && isOutsideTrustedRoots(cwd, p, trustedRoots)) {
-                suspiciousPaths.push(p)
+            if (p) {
+                const { outside, resolved } = isOutsideTrustedRoots(cwd, p, trustedRoots)
+                if (outside) {
+                    suspiciousPaths.push({ original: p, resolved })
+                }
             }
         } else if (toolName === "bash") {
             const command =
@@ -176,8 +207,9 @@ export default function (pi: ExtensionAPI) {
 
                 if (!looksLikePossiblyDangerousPathToken(cleanToken)) continue
 
-                if (isOutsideTrustedRoots(cwd, cleanToken, trustedRoots)) {
-                    suspiciousPaths.push(cleanToken)
+                const { outside, resolved } = isOutsideTrustedRoots(cwd, cleanToken, trustedRoots)
+                if (outside) {
+                    suspiciousPaths.push({ original: cleanToken, resolved })
                 }
             }
         } else {
@@ -185,7 +217,29 @@ export default function (pi: ExtensionAPI) {
         }
 
         if (suspiciousPaths.length > 0) {
-            const uniquePaths = Array.from(new Set(suspiciousPaths))
+            const pendingPaths: SuspiciousPath[] = []
+
+            for (const suspicious of suspiciousPaths) {
+                const remembered = findRememberedDecision(suspicious.resolved)
+                if (remembered) {
+                    if (!remembered.allowed) {
+                        return {
+                            block: true,
+                            reason: `Blocked by prior denial for ${remembered.root}`,
+                        }
+                    }
+
+                    continue
+                }
+
+                pendingPaths.push(suspicious)
+            }
+
+            if (pendingPaths.length === 0) {
+                return undefined
+            }
+
+            const uniquePaths = Array.from(new Set(pendingPaths.map((p) => p.original)))
 
             if (!ctx.hasUI) {
                 return {
@@ -203,10 +257,20 @@ export default function (pi: ExtensionAPI) {
             const { allowed, timedOut } = await selectYesNoWithAutoDeny(ctx, title)
 
             if (!allowed) {
+                if (!timedOut) {
+                    for (const pathEntry of pendingPaths) {
+                        rememberDecision(pathEntry.resolved, false)
+                    }
+                }
+
                 return {
                     block: true,
                     reason: timedOut ? "Cancelled (no selection)" : "Blocked by user",
                 }
+            }
+
+            for (const pathEntry of pendingPaths) {
+                rememberDecision(pathEntry.resolved, true)
             }
         }
 
