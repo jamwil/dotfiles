@@ -38,6 +38,8 @@ export default function (pi: ExtensionAPI) {
      * Normalize tool-supplied paths.
      * - Some models include a leading '@' in path arguments.
      * - Support ~, ~/, and ~\\ home expansion.
+     * - On Windows, convert common Git Bash/MSYS2-style paths to Win32 paths
+     *   (e.g. /c/Users/me -> C:\\Users\\me).
      */
     function normalizeToolPathArg(p: string): string {
         const stripped = p.startsWith("@") ? p.slice(1) : p
@@ -48,7 +50,39 @@ export default function (pi: ExtensionAPI) {
             return path.join(os.homedir(), stripped.slice(2))
         }
 
+        if (process.platform === "win32") {
+            const msys = msysToWindowsPath(stripped)
+            if (msys) return msys
+        }
+
         return stripped
+    }
+
+    /**
+     * Convert MSYS2/Git-Bash paths to native Win32 paths.
+     *
+     * Examples:
+     *   /c/Users/a -> C:\\Users\\a
+     *   /cygdrive/c/Users/a -> C:\\Users\\a
+     */
+    function msysToWindowsPath(p: string): string | null {
+        // /c/...
+        let m = p.match(/^\/([a-zA-Z])(?:\/(.*))?$/)
+        if (m) {
+            const drive = m[1].toUpperCase()
+            const rest = (m[2] ?? "").replace(/\//g, "\\")
+            return rest ? `${drive}:\\${rest}` : `${drive}:\\`
+        }
+
+        // /cygdrive/c/...
+        m = p.match(/^\/cygdrive\/([a-zA-Z])(?:\/(.*))?$/)
+        if (m) {
+            const drive = m[1].toUpperCase()
+            const rest = (m[2] ?? "").replace(/\//g, "\\")
+            return rest ? `${drive}:\\${rest}` : `${drive}:\\`
+        }
+
+        return null
     }
 
     function normalizeForCompare(p: string): string {
@@ -113,7 +147,9 @@ export default function (pi: ExtensionAPI) {
     pi.on("tool_call", async (event, ctx) => {
         const toolName = event.toolName
         const suspiciousPaths: string[] = []
-        const cwd = ctx.cwd
+        // On Windows, ctx.cwd may be provided in MSYS/Git-Bash form (/c/...) depending
+        // on how pi was launched.
+        const cwd = normalizeToolPathArg(ctx.cwd)
         const trustedRoots = getTrustedRoots(cwd)
 
         if (toolName === "read" || toolName === "write" || toolName === "edit") {
