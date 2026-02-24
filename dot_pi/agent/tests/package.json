@@ -1,0 +1,15 @@
+{
+    "name": "pi-agent-tests",
+    "version": "1.0.0",
+    "description": "Test suite for pi agent extensions",
+    "private": true,
+    "scripts": {
+        "test": "npx tsx cwd-gate-patterns.test.ts && npx tsx cwd-gate-commands.test.ts && npx tsx permission-gate-patterns.test.ts",
+        "test:cwd-patterns": "npx tsx cwd-gate-patterns.test.ts",
+        "test:cwd-commands": "npx tsx cwd-gate-commands.test.ts",
+        "test:permission": "npx tsx permission-gate-patterns.test.ts"
+    },
+    "devDependencies": {
+        "tsx": "^4.0.0"
+    }
+}

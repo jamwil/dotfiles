@@ -8,13 +8,21 @@
  * - pi's agent directory (global extensions/skills/prompts/themes/settings)
  */
 
-import * as os from "node:os"
 import * as path from "node:path"
 import {
     type ExtensionAPI,
     type ExtensionContext,
     getAgentDir,
 } from "@mariozechner/pi-coding-agent"
+import {
+    type SuspiciousPath,
+    extractSuspiciousPathsFromCommand,
+    getTrustedRoots,
+    isEqualOrDescendant,
+    isOutsideTrustedRoots,
+    normalizeForCompare,
+    normalizeToolPathArg,
+} from "./lib/cwd-gate-patterns"
 
 export default function (pi: ExtensionAPI) {
     const AUTO_DENY_TIMEOUT_MS = 90_000
@@ -51,7 +59,9 @@ export default function (pi: ExtensionAPI) {
         title: string,
         timeoutMs = AUTO_DENY_TIMEOUT_MS,
     ): Promise<{ allowed: boolean; timedOut: boolean }> {
-        const choice = await ctx.ui.select(title, ["Yes", "No"], { timeout: timeoutMs })
+        const choice = await ctx.ui.select(title, ["Yes", "No"], {
+            timeout: timeoutMs,
+        })
 
         if (choice === undefined) {
             return { allowed: false, timedOut: true }
@@ -60,155 +70,13 @@ export default function (pi: ExtensionAPI) {
         return { allowed: choice === "Yes", timedOut: false }
     }
 
-    /**
-     * Normalize tool-supplied paths.
-     * - Some models include a leading '@' in path arguments.
-     * - Support ~, ~/, and ~\\ home expansion.
-     * - On Windows, convert common Git Bash/MSYS2-style paths to Win32 paths
-     *   (e.g. /c/Users/me -> C:\\Users\\me).
-     */
-    function normalizeToolPathArg(p: string): string {
-        const stripped = p.startsWith("@") ? p.slice(1) : p
-
-        if (stripped === "~") return os.homedir()
-
-        if (stripped.startsWith("~/") || stripped.startsWith("~\\")) {
-            return path.join(os.homedir(), stripped.slice(2))
-        }
-
-        if (process.platform === "win32") {
-            const msys = msysToWindowsPath(stripped)
-            if (msys) return msys
-        }
-
-        return stripped
-    }
-
-    /**
-     * Convert MSYS2/Git-Bash paths to native Win32 paths.
-     *
-     * Examples:
-     *   /c/Users/a -> C:\\Users\\a
-     *   /cygdrive/c/Users/a -> C:\\Users\\a
-     */
-    function msysToWindowsPath(p: string): string | null {
-        // /c/...
-        let m = p.match(/^\/([a-zA-Z])(?:\/(.*))?$/)
-        if (m) {
-            const drive = m[1].toUpperCase()
-            const rest = (m[2] ?? "").replace(/\//g, "\\")
-            return rest ? `${drive}:\\${rest}` : `${drive}:\\`
-        }
-
-        // /cygdrive/c/...
-        m = p.match(/^\/cygdrive\/([a-zA-Z])(?:\/(.*))?$/)
-        if (m) {
-            const drive = m[1].toUpperCase()
-            const rest = (m[2] ?? "").replace(/\//g, "\\")
-            return rest ? `${drive}:\\${rest}` : `${drive}:\\`
-        }
-
-        return null
-    }
-
-    function normalizeForCompare(p: string): string {
-        const normalized = path.normalize(p)
-        return process.platform === "win32" ? normalized.toLowerCase() : normalized
-    }
-
-    function isEqualOrDescendant(rootPath: string, targetPath: string): boolean {
-        const rootResolved = path.resolve(rootPath)
-        const targetResolved = path.resolve(targetPath)
-
-        // Prefix match with separator avoids false positives like:
-        //   C:\\foo vs C:\\foobar
-        const rootPrefix = rootResolved.endsWith(path.sep)
-            ? rootResolved
-            : `${rootResolved}${path.sep}`
-
-        const rootCmp = normalizeForCompare(rootResolved)
-        const rootPrefixCmp = normalizeForCompare(rootPrefix)
-        const targetCmp = normalizeForCompare(targetResolved)
-
-        return targetCmp === rootCmp || targetCmp.startsWith(rootPrefixCmp)
-    }
-
-    function getTrustedRoots(baseCwd: string): string[] {
-        const rootsByCompare = new Map<string, string>()
-
-        const extraTrustedRoots = process.platform === "win32" ? [] : ["/tmp"]
-
-        for (const root of [path.resolve(baseCwd), AGENT_DIR, ...extraTrustedRoots]) {
-            rootsByCompare.set(normalizeForCompare(root), root)
-        }
-
-        return Array.from(rootsByCompare.values())
-    }
-
-    function isOutsideTrustedRoots(
-        baseCwd: string,
-        targetPath: string,
-        trustedRoots: string[],
-    ): { outside: boolean; resolved: string } {
-        const expanded = normalizeToolPathArg(targetPath)
-
-        const baseResolved = path.resolve(baseCwd)
-        const targetResolved = path.resolve(baseResolved, expanded)
-
-        const outside = !trustedRoots.some((root) => isEqualOrDescendant(root, targetResolved))
-        return { outside, resolved: targetResolved }
-    }
-
-    type SuspiciousPath = { original: string; resolved: string }
-
-    /**
-     * Heuristic: does the token look like a regex pattern rather than a path?
-     * Catches common ripgrep/grep/sed patterns to avoid false positives.
-     */
-    function looksLikeRegexNotPath(token: string): boolean {
-        // Sed/awk substitution expressions: s/foo/bar/, y/abc/xyz/
-        if (/^[sy]\//.test(token)) return true
-
-        if (token.startsWith("/")) {
-            // Contains regex metacharacters that are uncommon/invalid in real paths:
-            // |  alternation
-            // +  one-or-more quantifier
-            // {  repetition quantifier (paths don't contain literal braces)
-            // (  grouping
-            // ^  anchor
-            // $  anchor
-            //
-            // Intentionally excludes *, ?, and [] which appear in valid path globs.
-            if (/[|+{}()^$]/.test(token)) return true
-        }
-
-        return false
-    }
-
-    function looksLikePossiblyDangerousPathToken(token: string): boolean {
-        if (!token) return false
-
-        // Filter out regex patterns before path checks
-        if (looksLikeRegexNotPath(token)) return false
-
-        // Unix-ish
-        if (token.startsWith("/") || token.startsWith("~") || token.startsWith("..")) return true
-
-        // Windows drive absolute, UNC, root-relative
-        if (/^[a-zA-Z]:[\\/]/.test(token)) return true
-        if (/^(\\\\|\/\/)[^\\/]+[\\/][^\\/]+/.test(token)) return true
-        if (token.startsWith("\\")) return true
-
-        return false
-    }
-
     pi.on("tool_call", async (event, ctx) => {
         const toolName = event.toolName
         const suspiciousPaths: SuspiciousPath[] = []
         // On Windows, ctx.cwd may be provided in MSYS/Git-Bash form (/c/...) depending
         // on how pi was launched.
         const cwd = normalizeToolPathArg(ctx.cwd)
-        const trustedRoots = getTrustedRoots(cwd)
+        const trustedRoots = getTrustedRoots(cwd, AGENT_DIR)
 
         if (toolName === "read" || toolName === "write" || toolName === "edit") {
             const p =
@@ -227,21 +95,7 @@ export default function (pi: ExtensionAPI) {
                     ? ((event.input as any).command as string)
                     : ""
 
-            // Naive tokenization to find potential paths.
-            // Goal is to catch obvious "outside trusted roots" paths without lots of false positives.
-            const tokens = command.split(/\s+/)
-
-            for (const token of tokens) {
-                // Strip surrounding quotes and common trailing punctuation.
-                const cleanToken = token.replace(/^['"]|['"]$/g, "").replace(/[;,)+\]]+$/g, "")
-
-                if (!looksLikePossiblyDangerousPathToken(cleanToken)) continue
-
-                const { outside, resolved } = isOutsideTrustedRoots(cwd, cleanToken, trustedRoots)
-                if (outside) {
-                    suspiciousPaths.push({ original: cleanToken, resolved })
-                }
-            }
+            suspiciousPaths.push(...extractSuspiciousPathsFromCommand(command, cwd, trustedRoots))
         } else {
             return undefined
         }
