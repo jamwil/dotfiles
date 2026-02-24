@@ -126,6 +126,66 @@ const testCases = [
         expectMatch: true,
         category: "PowerShell remove",
     },
+
+    // .env file access - should match
+    { input: "cat .env", expectMatch: true, category: "Read .env" },
+    {
+        input: "cat .env.local",
+        expectMatch: true,
+        category: "Read .env.local",
+    },
+    {
+        input: "vim config/.env.production",
+        expectMatch: true,
+        category: "Edit .env in subdirectory",
+    },
+    {
+        input: "grep SECRET .env",
+        expectMatch: true,
+        category: "Grep .env",
+    },
+    {
+        input: 'echo "FOO=bar" >> .env',
+        expectMatch: true,
+        category: "Append to .env",
+    },
+    {
+        input: "cp .env .env.backup",
+        expectMatch: true,
+        category: "Copy .env (should match)",
+    },
+    {
+        input: "cat prod.env",
+        expectMatch: true,
+        category: "Read prod.env (suffix variant)",
+    },
+    {
+        input: "vim development.env",
+        expectMatch: true,
+        category: "Edit development.env (suffix variant)",
+    },
+    {
+        input: "cp staging.env backup/",
+        expectMatch: true,
+        category: "Copy staging.env",
+    },
+
+    // .env-like strings that should NOT match
+    {
+        input: "export MY_ENV_VAR=value",
+        expectMatch: false,
+        category: "Environment variable (not .env file)",
+    },
+    {
+        input: "echo environment",
+        expectMatch: false,
+        category: "Word containing 'env'",
+    },
+    {
+        input: "env NODE_ENV=production node app.js",
+        expectMatch: false,
+        category: "env command (not a .env file)",
+    },
 ]
 
 console.log("Testing permission-gate pattern detection\n")

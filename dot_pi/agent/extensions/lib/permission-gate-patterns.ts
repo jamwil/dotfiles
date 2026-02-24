@@ -35,6 +35,9 @@ export const dangerousPatterns: RegExp[] = [
     /\bcmd(?:\.exe)?\s+\/c\s+format(?:\.com|\.exe)?(?=\s|$)/i,
     /\b(?:icacls|takeown)\b/i,
     /\b(?:powershell|pwsh)\b.*\b(?:Remove-Item|Format-Volume|Clear-Disk|Set-Acl)\b/i,
+
+    // Accessing .env files (prefixes like .env.local, suffixes like prod.env, or just .env)
+    /(?:^|[\s'"/])(?:\.env(?:\.[\w.-]+)?|[\w.-]+\.env)(?:$|[\s'"/;|&><])/i,
 ]
 
 /** Returns the subset of `dangerousPatterns` that match the command. */
