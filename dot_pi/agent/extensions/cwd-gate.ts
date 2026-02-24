@@ -4,6 +4,7 @@
  * Prompts for confirmation before reading, writing, editing, or executing files
  * that are not within:
  * - the current working directory
+ * - /tmp (POSIX)
  * - pi's agent directory (global extensions/skills/prompts/themes/settings)
  */
 
@@ -135,7 +136,9 @@ export default function (pi: ExtensionAPI) {
     function getTrustedRoots(baseCwd: string): string[] {
         const rootsByCompare = new Map<string, string>()
 
-        for (const root of [path.resolve(baseCwd), AGENT_DIR]) {
+        const extraTrustedRoots = process.platform === "win32" ? [] : ["/tmp"]
+
+        for (const root of [path.resolve(baseCwd), AGENT_DIR, ...extraTrustedRoots]) {
             rootsByCompare.set(normalizeForCompare(root), root)
         }
 
