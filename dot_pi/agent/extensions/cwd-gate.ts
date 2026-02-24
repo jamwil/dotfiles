@@ -161,8 +161,35 @@ export default function (pi: ExtensionAPI) {
 
     type SuspiciousPath = { original: string; resolved: string }
 
+    /**
+     * Heuristic: does the token look like a regex pattern rather than a path?
+     * Catches common ripgrep/grep/sed patterns to avoid false positives.
+     */
+    function looksLikeRegexNotPath(token: string): boolean {
+        // Sed/awk substitution expressions: s/foo/bar/, y/abc/xyz/
+        if (/^[sy]\//.test(token)) return true
+
+        if (token.startsWith("/")) {
+            // Contains regex metacharacters that are uncommon/invalid in real paths:
+            // |  alternation
+            // +  one-or-more quantifier
+            // {  repetition quantifier (paths don't contain literal braces)
+            // (  grouping
+            // ^  anchor
+            // $  anchor
+            //
+            // Intentionally excludes *, ?, and [] which appear in valid path globs.
+            if (/[|+{}()^$]/.test(token)) return true
+        }
+
+        return false
+    }
+
     function looksLikePossiblyDangerousPathToken(token: string): boolean {
         if (!token) return false
+
+        // Filter out regex patterns before path checks
+        if (looksLikeRegexNotPath(token)) return false
 
         // Unix-ish
         if (token.startsWith("/") || token.startsWith("~") || token.startsWith("..")) return true
