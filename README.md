@@ -44,6 +44,24 @@ Then, set up Atuin sync and proceed to the non-mandatory apps below.
 atuin login -u <USERNAME>
 ```
 
+## tmux plugin manager (TPM)
+
+The tmux config uses [TPM](https://github.com/tmux-plugins/tpm) to manage
+plugins (`tmux-resurrect`, `tmux-continuum`). TPM itself must be cloned
+manually once:
+
+```bash
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+```
+
+Then, inside a running tmux session, install the plugins:
+
+```
+prefix + I   (capital i)
+```
+
+To update plugins in the future: `prefix + U`.
+
 ## Other applications
 
 The following is not mandatory for dotfiles but is a helpful checklist when
