@@ -47,14 +47,11 @@ atuin login -u <USERNAME>
 ## tmux plugin manager (TPM)
 
 The tmux config uses [TPM](https://github.com/tmux-plugins/tpm) to manage
-plugins (`tmux-resurrect`, `tmux-continuum`). TPM itself must be cloned
-manually once:
+plugins (`tmux-resurrect`, `tmux-continuum`). TPM is declared as a chezmoi
+external in `.chezmoiexternal.toml` and will be cloned automatically when you
+run `chezmoi apply` — no manual setup required.
 
-```bash
-git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-```
-
-Then, inside a running tmux session, install the plugins:
+After applying, install the plugins inside a running tmux session:
 
 ```
 prefix + I   (capital i)
