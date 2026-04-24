@@ -13,7 +13,7 @@ import {
     type ExtensionAPI,
     type ExtensionContext,
     getAgentDir,
-} from "@mariozechner/pi-coding-agent"
+} from "@jamwil/pi"
 import {
     type SuspiciousPath,
     extractSuspiciousPathsFromCommand,

@@ -8,8 +8,8 @@
  * - Reset countdowns
  */
 
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent"
-import { visibleWidth } from "@mariozechner/pi-tui"
+import type { ExtensionAPI } from "@jamwil/pi"
+import { visibleWidth } from "@jamwil/pi-tui"
 import * as fs from "node:fs"
 import * as path from "node:path"
 import * as os from "node:os"
