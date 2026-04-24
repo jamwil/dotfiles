@@ -5,7 +5,7 @@
 
 import { existsSync, readFileSync } from "node:fs"
 import { join } from "node:path"
-import { type ExtensionAPI, getAgentDir } from "@mariozechner/pi-coding-agent"
+import { type ExtensionAPI, getAgentDir } from "@jamwil/pi"
 import { parse } from "jsonc-parser"
 
 const agentDir = getAgentDir()
