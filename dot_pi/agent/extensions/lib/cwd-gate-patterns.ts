@@ -8,6 +8,8 @@
 import * as os from "node:os"
 import * as path from "node:path"
 
+export type PathSyntax = "native" | "bash"
+
 /* ------------------------------------------------------------------ */
 /*  Path normalisation                                                */
 /* ------------------------------------------------------------------ */
@@ -37,6 +39,40 @@ export function normalizeToolPathArg(p: string): string {
 }
 
 /**
+ * Normalize bash-command paths.
+ *
+ * Pi's bash tool runs under bash semantics, so command paths should be treated
+ * as forward-slash paths. On Windows we convert native drive-letter paths to
+ * bash-style /c/... paths for comparison, but we do not treat bare backslashes
+ * as path separators when scanning command tokens.
+ */
+export function normalizeBashPathArg(p: string): string {
+    const stripped = p.startsWith("@") ? p.slice(1) : p
+
+    if (stripped === "~") return getBashHomeDir()
+
+    if (stripped.startsWith("~/") || stripped.startsWith("~\\")) {
+        const remainder = stripped.slice(2).replace(/\\/g, "/")
+        return path.posix.join(getBashHomeDir(), remainder)
+    }
+
+    if (process.platform === "win32") {
+        const bashPath = windowsToBashPath(stripped)
+        if (bashPath) return bashPath
+    }
+
+    return stripped
+}
+
+function getBashHomeDir(): string {
+    if (process.platform !== "win32") {
+        return os.homedir()
+    }
+
+    return windowsToBashPath(os.homedir()) ?? os.homedir().replace(/\\/g, "/")
+}
+
+/**
  * Convert MSYS2/Git-Bash paths to native Win32 paths.
  *
  * Examples:
@@ -63,8 +99,32 @@ export function msysToWindowsPath(p: string): string | null {
     return null
 }
 
+/**
+ * Convert native Win32 drive-letter paths to bash-style /c/... paths.
+ */
+export function windowsToBashPath(p: string): string | null {
+    let m = p.match(/^([a-zA-Z]):[\\/](.*)$/)
+    if (m) {
+        const drive = m[1].toLowerCase()
+        const rest = m[2].replace(/\\/g, "/").replace(/^\/+/, "")
+        return rest ? `/${drive}/${rest}` : `/${drive}`
+    }
+
+    m = p.match(/^([a-zA-Z]):$/)
+    if (m) {
+        return `/${m[1].toLowerCase()}`
+    }
+
+    return null
+}
+
 export function normalizeForCompare(p: string): string {
     const normalized = path.normalize(p)
+    return process.platform === "win32" ? normalized.toLowerCase() : normalized
+}
+
+export function normalizeForBashCompare(p: string): string {
+    const normalized = path.posix.normalize(p)
     return process.platform === "win32" ? normalized.toLowerCase() : normalized
 }
 
@@ -87,6 +147,21 @@ export function isEqualOrDescendant(rootPath: string, targetPath: string): boole
     return targetCmp === rootCmp || targetCmp.startsWith(rootPrefixCmp)
 }
 
+export function isEqualOrDescendantBash(rootPath: string, targetPath: string): boolean {
+    const rootResolved = path.posix.resolve(normalizeBashPathArg(rootPath))
+    const targetResolved = path.posix.resolve(normalizeBashPathArg(targetPath))
+
+    const rootPrefix = rootResolved.endsWith(path.posix.sep)
+        ? rootResolved
+        : `${rootResolved}${path.posix.sep}`
+
+    const rootCmp = normalizeForBashCompare(rootResolved)
+    const rootPrefixCmp = normalizeForBashCompare(rootPrefix)
+    const targetCmp = normalizeForBashCompare(targetResolved)
+
+    return targetCmp === rootCmp || targetCmp.startsWith(rootPrefixCmp)
+}
+
 export function getTrustedRoots(baseCwd: string, agentDir: string): string[] {
     const rootsByCompare = new Map<string, string>()
 
@@ -94,6 +169,20 @@ export function getTrustedRoots(baseCwd: string, agentDir: string): string[] {
 
     for (const root of [path.resolve(baseCwd), agentDir, ...extraTrustedRoots]) {
         rootsByCompare.set(normalizeForCompare(root), root)
+    }
+
+    return Array.from(rootsByCompare.values())
+}
+
+export function getBashTrustedRoots(baseCwd: string, agentDir: string): string[] {
+    const rootsByCompare = new Map<string, string>()
+
+    for (const root of [
+        path.posix.resolve(normalizeBashPathArg(baseCwd)),
+        path.posix.resolve(normalizeBashPathArg(agentDir)),
+        "/tmp",
+    ]) {
+        rootsByCompare.set(normalizeForBashCompare(root), root)
     }
 
     return Array.from(rootsByCompare.values())
@@ -110,6 +199,20 @@ export function isOutsideTrustedRoots(
     const targetResolved = path.resolve(baseResolved, expanded)
 
     const outside = !trustedRoots.some((root) => isEqualOrDescendant(root, targetResolved))
+    return { outside, resolved: targetResolved }
+}
+
+export function isOutsideTrustedRootsForBash(
+    baseCwd: string,
+    targetPath: string,
+    trustedRoots: string[],
+): { outside: boolean; resolved: string } {
+    const expanded = normalizeBashPathArg(targetPath)
+
+    const baseResolved = path.posix.resolve(normalizeBashPathArg(baseCwd))
+    const targetResolved = path.posix.resolve(baseResolved, expanded)
+
+    const outside = !trustedRoots.some((root) => isEqualOrDescendantBash(root, targetResolved))
     return { outside, resolved: targetResolved }
 }
 
@@ -158,15 +261,29 @@ export function looksLikePossiblyDangerousPathToken(token: string): boolean {
     return false
 }
 
+export function looksLikePossiblyDangerousBashPathToken(token: string): boolean {
+    if (!token) return false
+
+    // Filter out regex patterns before path checks
+    if (looksLikeRegexNotPath(token)) return false
+
+    // Bash paths should use forward slashes. Do not treat backslashes as path
+    // separators here; they are commonly used for escaping quotes/spaces.
+    if (token.startsWith("/") || token.startsWith("~") || token.startsWith("..")) return true
+    if (/^[a-zA-Z]:\//.test(token)) return true
+
+    return false
+}
+
 /* ------------------------------------------------------------------ */
 /*  Bash-command token extraction                                     */
 /* ------------------------------------------------------------------ */
 
-export type SuspiciousPath = { original: string; resolved: string }
+export type SuspiciousPath = { original: string; resolved: string; syntax: PathSyntax }
 
 /**
  * Extract tokens from a bash command that look like paths outside of trusted
- * roots.  Returns an array of suspicious path entries.
+ * roots. Returns an array of suspicious path entries.
  */
 export function extractSuspiciousPathsFromCommand(
     command: string,
@@ -180,11 +297,11 @@ export function extractSuspiciousPathsFromCommand(
         // Strip surrounding quotes and common trailing punctuation.
         const cleanToken = token.replace(/^['"]|['"]$/g, "").replace(/[;,)+\]]+$/g, "")
 
-        if (!looksLikePossiblyDangerousPathToken(cleanToken)) continue
+        if (!looksLikePossiblyDangerousBashPathToken(cleanToken)) continue
 
-        const { outside, resolved } = isOutsideTrustedRoots(cwd, cleanToken, trustedRoots)
+        const { outside, resolved } = isOutsideTrustedRootsForBash(cwd, cleanToken, trustedRoots)
         if (outside) {
-            suspicious.push({ original: cleanToken, resolved })
+            suspicious.push({ original: cleanToken, resolved, syntax: "bash" })
         }
     }
 
