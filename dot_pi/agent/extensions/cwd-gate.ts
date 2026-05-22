@@ -4,7 +4,7 @@
  * Prompts for confirmation before reading, writing, editing, or executing files
  * that are not within:
  * - the current working directory
- * - /tmp (POSIX)
+ * - /tmp (POSIX/bash)
  * - pi's agent directory (global extensions/skills/prompts/themes/settings)
  */
 
@@ -15,11 +15,15 @@ import {
     getAgentDir,
 } from "@jamwil/pi"
 import {
+    type PathSyntax,
     type SuspiciousPath,
     extractSuspiciousPathsFromCommand,
+    getBashTrustedRoots,
     getTrustedRoots,
     isEqualOrDescendant,
+    isEqualOrDescendantBash,
     isOutsideTrustedRoots,
+    normalizeForBashCompare,
     normalizeForCompare,
     normalizeToolPathArg,
 } from "./lib/cwd-gate-patterns"
@@ -29,24 +33,39 @@ export default function (pi: ExtensionAPI) {
     // Uses pi's configured agent dir (e.g. ~/.pi/agent by default, cross-platform).
     const AGENT_DIR = path.resolve(getAgentDir())
 
-    type StoredDecision = { root: string; allowed: boolean }
+    type StoredDecision = { root: string; allowed: boolean; syntax: PathSyntax }
     const rememberedDecisions = new Map<string, StoredDecision>()
 
-    function normalizeDecisionKey(p: string): string {
+    function normalizeDecisionKey(p: string, syntax: PathSyntax): string {
+        if (syntax === "bash") {
+            return normalizeForBashCompare(path.posix.resolve(p))
+        }
+
         return normalizeForCompare(path.resolve(p))
     }
 
-    function rememberDecision(rootPath: string, allowed: boolean): void {
-        const resolvedRoot = path.resolve(rootPath)
-        rememberedDecisions.set(normalizeDecisionKey(resolvedRoot), {
+    function rememberDecision(rootPath: string, allowed: boolean, syntax: PathSyntax): void {
+        const resolvedRoot = syntax === "bash" ? path.posix.resolve(rootPath) : path.resolve(rootPath)
+        rememberedDecisions.set(normalizeDecisionKey(resolvedRoot, syntax), {
             root: resolvedRoot,
             allowed,
+            syntax,
         })
     }
 
-    function findRememberedDecision(targetResolved: string): StoredDecision | undefined {
+    function findRememberedDecision(
+        targetResolved: string,
+        syntax: PathSyntax,
+    ): StoredDecision | undefined {
         for (const decision of rememberedDecisions.values()) {
-            if (isEqualOrDescendant(decision.root, targetResolved)) {
+            if (decision.syntax !== syntax) continue
+
+            const covered =
+                syntax === "bash"
+                    ? isEqualOrDescendantBash(decision.root, targetResolved)
+                    : isEqualOrDescendant(decision.root, targetResolved)
+
+            if (covered) {
                 return decision
             }
         }
@@ -73,20 +92,20 @@ export default function (pi: ExtensionAPI) {
     pi.on("tool_call", async (event, ctx) => {
         const toolName = event.toolName
         const suspiciousPaths: SuspiciousPath[] = []
-        // On Windows, ctx.cwd may be provided in MSYS/Git-Bash form (/c/...) depending
-        // on how pi was launched.
-        const cwd = normalizeToolPathArg(ctx.cwd)
-        const trustedRoots = getTrustedRoots(cwd, AGENT_DIR)
+        const nativeCwd = normalizeToolPathArg(ctx.cwd)
+        let trustedRoots: string[] = []
 
         if (toolName === "read" || toolName === "write" || toolName === "edit") {
+            trustedRoots = getTrustedRoots(nativeCwd, AGENT_DIR)
+
             const p =
                 typeof (event.input as any)?.path === "string"
                     ? ((event.input as any).path as string)
                     : ""
             if (p) {
-                const { outside, resolved } = isOutsideTrustedRoots(cwd, p, trustedRoots)
+                const { outside, resolved } = isOutsideTrustedRoots(nativeCwd, p, trustedRoots)
                 if (outside) {
-                    suspiciousPaths.push({ original: p, resolved })
+                    suspiciousPaths.push({ original: p, resolved, syntax: "native" })
                 }
             }
         } else if (toolName === "bash") {
@@ -95,7 +114,8 @@ export default function (pi: ExtensionAPI) {
                     ? ((event.input as any).command as string)
                     : ""
 
-            suspiciousPaths.push(...extractSuspiciousPathsFromCommand(command, cwd, trustedRoots))
+            trustedRoots = getBashTrustedRoots(ctx.cwd, AGENT_DIR)
+            suspiciousPaths.push(...extractSuspiciousPathsFromCommand(command, ctx.cwd, trustedRoots))
         } else {
             return undefined
         }
@@ -104,7 +124,7 @@ export default function (pi: ExtensionAPI) {
             const pendingPaths: SuspiciousPath[] = []
 
             for (const suspicious of suspiciousPaths) {
-                const remembered = findRememberedDecision(suspicious.resolved)
+                const remembered = findRememberedDecision(suspicious.resolved, suspicious.syntax)
                 if (remembered) {
                     if (!remembered.allowed) {
                         return {
@@ -143,7 +163,7 @@ export default function (pi: ExtensionAPI) {
             if (!allowed) {
                 if (!timedOut) {
                     for (const pathEntry of pendingPaths) {
-                        rememberDecision(pathEntry.resolved, false)
+                        rememberDecision(pathEntry.resolved, false, pathEntry.syntax)
                     }
                 }
 
@@ -154,7 +174,7 @@ export default function (pi: ExtensionAPI) {
             }
 
             for (const pathEntry of pendingPaths) {
-                rememberDecision(pathEntry.resolved, true)
+                rememberDecision(pathEntry.resolved, true, pathEntry.syntax)
             }
         }
 

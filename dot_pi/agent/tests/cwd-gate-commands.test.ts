@@ -6,19 +6,18 @@
 
 import {
     extractSuspiciousPathsFromCommand,
-    getTrustedRoots,
-    normalizeToolPathArg,
+    getBashTrustedRoots,
 } from "../extensions/lib/cwd-gate-patterns"
 
 /**
  * Helper: extract suspicious tokens from a command as if running in a
- * project directory.  Uses a synthetic cwd and agent dir so results are
+ * project directory. Uses a synthetic cwd and agent dir so results are
  * deterministic regardless of the machine running the tests.
  */
 function extractSuspiciousTokens(command: string): string[] {
     const cwd = "/home/user/project"
     const agentDir = "/home/user/.pi/agent"
-    const trustedRoots = getTrustedRoots(cwd, agentDir)
+    const trustedRoots = getBashTrustedRoots(cwd, agentDir)
 
     return extractSuspiciousPathsFromCommand(command, cwd, trustedRoots).map((p) => p.original)
 }
@@ -47,7 +46,7 @@ const commands = [
     {
         cmd: "sed 's/foo/bar/g' /tmp/file.txt",
         expectSuspicious: [],
-        description: "Sed with substitution (pattern OK, /tmp is trusted)",
+        description: "Sed with substitution (/tmp stays trusted for bash)",
     },
     {
         cmd: "find /usr/local -name '*.so'",
@@ -74,9 +73,24 @@ const commands = [
         expectSuspicious: [],
         description: "Ripgrep with multiple relative dirs (OK)",
     },
+    {
+        cmd: 'python -c "print(\\"hello\\")"',
+        expectSuspicious: [],
+        description: "Escaped quotes inside bash string do not look like paths",
+    },
+    {
+        cmd: 'jq ".foo == \\\"bar\\\"" data.json',
+        expectSuspicious: [],
+        description: "Backslash-escaped quotes are ignored during path detection",
+    },
+    {
+        cmd: 'echo \\\"quoted\\\" /etc/passwd',
+        expectSuspicious: ["/etc/passwd"],
+        description: "Escaped quoted strings do not hide real suspicious paths",
+    },
 ]
 
-console.log("Testing ripgrep command pattern detection\n")
+console.log("Testing cwd-gate bash command pattern detection\n")
 console.log("=".repeat(80))
 
 let passed = 0

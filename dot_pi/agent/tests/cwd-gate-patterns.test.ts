@@ -5,11 +5,12 @@
  */
 
 import {
+    looksLikePossiblyDangerousBashPathToken,
     looksLikePossiblyDangerousPathToken,
     looksLikeRegexNotPath,
 } from "../extensions/lib/cwd-gate-patterns"
 
-const testCases = [
+const nativeTestCases = [
     // Real paths - should be DANGEROUS
     { input: "/etc/passwd", expectDangerous: true, category: "Real root path" },
     {
@@ -24,6 +25,16 @@ const testCases = [
         category: "Relative parent path",
     },
     { input: "/tmp/test", expectDangerous: true, category: "Temp path" },
+    {
+        input: "C:\\Users\\me\\file.txt",
+        expectDangerous: true,
+        category: "Native Windows absolute path",
+    },
+    {
+        input: "\\\\server\\share\\file.txt",
+        expectDangerous: true,
+        category: "UNC path",
+    },
 
     // Regex patterns - should NOT be dangerous
     {
@@ -96,32 +107,76 @@ const testCases = [
     { input: "", expectDangerous: false, category: "Empty string" },
 ]
 
-console.log("Testing cwd-gate pattern detection\n")
-console.log("=".repeat(80))
+const bashTestCases = [
+    { input: "/etc/passwd", expectDangerous: true, category: "POSIX absolute path" },
+    { input: "~/config", expectDangerous: true, category: "Bash home expansion" },
+    { input: "../other", expectDangerous: true, category: "Bash parent relative" },
+    {
+        input: '"quoted"',
+        expectDangerous: false,
+        category: "Quoted string is not a path",
+    },
+    {
+        input: '\\"quoted\\"',
+        expectDangerous: false,
+        category: "Escaped quotes are not a bash path",
+    },
+    {
+        input: "C:\\Users\\me\\file.txt",
+        expectDangerous: false,
+        category: "Backslash Windows path is not treated as bash path",
+    },
+    {
+        input: "\\\\server\\share\\file.txt",
+        expectDangerous: false,
+        category: "UNC-style backslash path is not treated as bash path",
+    },
+    {
+        input: "C:/Users/me/file.txt",
+        expectDangerous: true,
+        category: "Forward-slash drive path still counts as bash path",
+    },
+    { input: "src/file.ts", expectDangerous: false, category: "Relative file within cwd" },
+    { input: "", expectDangerous: false, category: "Empty string" },
+]
 
-let passed = 0
-let failed = 0
+function runSuite(
+    title: string,
+    cases: { input: string; expectDangerous: boolean; category: string }[],
+    detector: (token: string) => boolean,
+) {
+    console.log(`Testing ${title}\n`)
+    console.log("=".repeat(80))
 
-for (const test of testCases) {
-    const actual = looksLikePossiblyDangerousPathToken(test.input)
-    const isRegex = looksLikeRegexNotPath(test.input)
-    const result = actual === test.expectDangerous ? "✓ PASS" : "✗ FAIL"
+    let passed = 0
+    let failed = 0
 
-    if (actual === test.expectDangerous) {
-        passed++
-    } else {
-        failed++
+    for (const test of cases) {
+        const actual = detector(test.input)
+        const isRegex = looksLikeRegexNotPath(test.input)
+        const result = actual === test.expectDangerous ? "✓ PASS" : "✗ FAIL"
+
+        if (actual === test.expectDangerous) {
+            passed++
+        } else {
+            failed++
+        }
+
+        console.log(`\n${result} | ${test.category}`)
+        console.log(`  Input: "${test.input}"`)
+        console.log(`  Expected dangerous: ${test.expectDangerous}, Actual: ${actual}`)
+        console.log(`  Detected as regex: ${isRegex}`)
     }
 
-    console.log(`\n${result} | ${test.category}`)
-    console.log(`  Input: "${test.input}"`)
-    console.log(`  Expected dangerous: ${test.expectDangerous}, Actual: ${actual}`)
-    console.log(`  Detected as regex: ${isRegex}`)
+    console.log("\n" + "=".repeat(80))
+    console.log(`\nResults: ${passed} passed, ${failed} failed out of ${cases.length} tests`)
+
+    if (failed > 0) {
+        process.exit(1)
+    }
+
+    console.log("\n")
 }
 
-console.log("\n" + "=".repeat(80))
-console.log(`\nResults: ${passed} passed, ${failed} failed out of ${testCases.length} tests`)
-
-if (failed > 0) {
-    process.exit(1)
-}
+runSuite("cwd-gate native pattern detection", nativeTestCases, looksLikePossiblyDangerousPathToken)
+runSuite("cwd-gate bash pattern detection", bashTestCases, looksLikePossiblyDangerousBashPathToken)
