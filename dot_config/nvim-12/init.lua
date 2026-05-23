@@ -58,7 +58,7 @@ vim.opt.inccommand = "split"
 -- Prompt to save
 vim.opt.confirm = true
 
--- Sessions (used by built-in mksession; see section 11.8)
+-- Sessions (used by built-in mksession; see section 11.9)
 vim.opt.sessionoptions = "buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 
 -- Floating window border
@@ -67,8 +67,8 @@ vim.o.winborder = "rounded"
 -- True color
 vim.opt.termguicolors = true
 
--- Native insert-mode completion (replaces blink.cmp)
-vim.o.autocomplete = true
+-- Use blink.cmp instead of Neovim's native insert-mode completion menu
+vim.o.autocomplete = false
 vim.o.completeopt = "menu,menuone,noselect,popup,fuzzy"
 vim.o.pumheight = 12
 vim.o.pumborder = "rounded"
@@ -168,7 +168,7 @@ for i = 1, 9 do
   map("n", "<leader>" .. i, "<cmd>BufferLineGoToBuffer " .. i .. "<CR>", { desc = "Go to buffer " .. i })
 end
 
--- Session restore (replaces persistence.nvim — see autocmd in section 11.8)
+-- Session restore (replaces persistence.nvim — see autocmd in section 11.9)
 map("n", "<leader>sr", function()
   local f = vim.fn.stdpath("state") .. "/sessions/" .. vim.fn.getcwd():gsub("/", "%%") .. ".vim"
   if vim.fn.filereadable(f) == 1 then
@@ -363,6 +363,8 @@ end
 -- 10. Plugin manager bootstrap
 vim.pack.add({
   "https://github.com/rebelot/kanagawa.nvim",
+  "https://github.com/saghen/blink.lib",
+  "https://github.com/saghen/blink.cmp",
   "https://github.com/nvim-lua/plenary.nvim",
   "https://github.com/nvim-tree/nvim-web-devicons",
   "https://github.com/MunifTanjim/nui.nvim",
@@ -379,7 +381,35 @@ vim.pack.add({
 -- 11. Plugin setup calls
 -- 11.1 Kanagawa (no setup needed for defaults)
 
--- 11.2 Neo-tree
+-- 11.2 Blink.cmp
+local blink = require("blink.cmp")
+blink.build():wait(60000)
+blink.setup({
+  keymap = { preset = "enter" },
+  appearance = {
+    nerd_font_variant = "mono",
+  },
+  completion = {
+    documentation = { auto_show = true },
+    list = { selection = { preselect = false, auto_insert = false } },
+  },
+  signature = { enabled = true, window = { show_documentation = false } },
+  sources = {
+    default = { "lsp", "path" },
+    providers = {
+      path = {
+        opts = {
+          get_cwd = function(_)
+            return vim.fn.getcwd()
+          end,
+        },
+      },
+    },
+  },
+  fuzzy = { implementation = "prefer_rust_with_warning" },
+})
+
+-- 11.3 Neo-tree
 require("neo-tree").setup({
   source_selector = { winbar = true, statusline = false },
   filesystem = { follow_current_file = { enabled = true } },
@@ -387,7 +417,7 @@ require("neo-tree").setup({
 vim.keymap.set("n", "<leader>e", "<cmd>Neotree<CR>", { desc = "Focus neo-tree" })
 vim.keymap.set("n", "<C-n>", "<cmd>Neotree toggle<CR>", { desc = "Toggle neo-tree" })
 
--- 11.3 Bufferline
+-- 11.4 Bufferline
 local function setup_bufferline()
   require("bufferline").setup({
     options = {
@@ -423,7 +453,7 @@ else
   })
 end
 
--- 11.4 Snacks
+-- 11.5 Snacks
 require("snacks").setup({
   bigfile = { enabled = true },
   picker = { enabled = true },
@@ -442,7 +472,7 @@ vim.keymap.set("n", "<leader>:", function()
   Snacks.picker.command_history()
 end, { desc = "Command History" })
 
--- 11.5 Gitsigns
+-- 11.6 Gitsigns
 require("gitsigns").setup({
   on_attach = function(bufnr)
     local gs = require("gitsigns")
@@ -487,7 +517,7 @@ require("gitsigns").setup({
   end,
 })
 
--- 11.6 Conform
+-- 11.7 Conform
 require("conform").setup({
   formatters_by_ft = {
     lua = { "stylua" },
@@ -519,14 +549,14 @@ vim.keymap.set("n", "<leader>fm", function()
   require("conform").format({ async = true })
 end, { desc = "Format buffer" })
 
--- 11.7 Diffview
+-- 11.8 Diffview
 require("diffview").setup({
   view = { merge_tool = { layout = "diff3_mixed" } },
 })
 vim.keymap.set("n", "<leader>dv", "<cmd>DiffviewOpen<CR>", { desc = "Diffview open" })
 vim.keymap.set("n", "<leader>dh", "<cmd>DiffviewFileHistory<CR>", { desc = "Diffview file history" })
 
--- 11.8 Sessions
+-- 11.9 Sessions
 local session_dir = vim.fn.stdpath("state") .. "/sessions"
 vim.fn.mkdir(session_dir, "p")
 
