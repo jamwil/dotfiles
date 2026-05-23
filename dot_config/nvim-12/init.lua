@@ -362,7 +362,6 @@ end
 
 -- 10. Plugin manager bootstrap
 vim.pack.add({
-  "https://github.com/rebelot/kanagawa.nvim",
   "https://github.com/saghen/blink.lib",
   "https://github.com/saghen/blink.cmp",
   "https://github.com/nvim-lua/plenary.nvim",
@@ -379,7 +378,7 @@ vim.pack.add({
 })
 
 -- 11. Plugin setup calls
--- 11.1 Kanagawa (no setup needed for defaults)
+-- 11.1 Put colorscheme config here
 
 -- 11.2 Blink.cmp
 local blink = require("blink.cmp")
@@ -411,7 +410,7 @@ blink.setup({
 
 -- 11.3 Neo-tree
 require("neo-tree").setup({
-  source_selector = { winbar = true, statusline = false },
+  source_selector = { winbar = true, statusline = false, truncation_character = "…" },
   filesystem = { follow_current_file = { enabled = true } },
 })
 vim.keymap.set("n", "<leader>e", "<cmd>Neotree<CR>", { desc = "Focus neo-tree" })
@@ -665,4 +664,4 @@ if vim.g.nvy == 1 then
 end
 
 -- 14. Colorscheme
-pcall(vim.cmd.colorscheme, "kanagawa-dragon")
+vim.cmd.colorscheme("catppuccin")
