@@ -664,4 +664,5 @@ if vim.g.nvy == 1 then
 end
 
 -- 14. Colorscheme
+vim.o.background = "dark"
 vim.cmd.colorscheme("catppuccin")
