@@ -82,7 +82,7 @@ end
 
 -- 4. Diagnostic configuration
 vim.diagnostic.config({
-  virtual_text = { spacing = 2, prefix = "●" },
+  virtual_text = false,
   severity_sort = true,
   float = { border = "rounded", source = true },
   signs = {
@@ -121,18 +121,8 @@ local map = vim.keymap.set
 map("n", "<Esc>", "<cmd>nohlsearch<CR>")
 
 -- Diagnostics
+map("n", "gl", vim.diagnostic.open_float, { desc = "Show line diagnostics" })
 map("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic location list" })
-
--- Smart K: prefer diagnostic float if there's a diagnostic on the line, else LSP hover
-map("n", "K", function()
-  local line = vim.api.nvim_win_get_cursor(0)[1] - 1
-  local diagnostics = vim.diagnostic.get(0, { lnum = line })
-  if diagnostics and #diagnostics > 0 then
-    vim.diagnostic.open_float({ scope = "cursor" })
-  else
-    vim.lsp.buf.hover()
-  end
-end, { desc = "Show diagnostics or hover" })
 
 -- New buffer
 map("n", "<leader>n", "<cmd>enew<CR>", { desc = "New buffer" })
