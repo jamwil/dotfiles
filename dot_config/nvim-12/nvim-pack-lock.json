@@ -32,6 +32,10 @@
       "rev": "de740991c12411b663994b2860f1a4fd0937c130",
       "src": "https://github.com/MunifTanjim/nui.nvim"
     },
+    "nvim-autopairs": {
+      "rev": "7b9923abad60b903ece7c52940e1321d39eccc79",
+      "src": "https://github.com/windwp/nvim-autopairs"
+    },
     "nvim-treesitter": {
       "rev": "df7489eeea351bece7fd0f9c825be5cb6a1438f0",
       "src": "https://github.com/neovim-treesitter/nvim-treesitter"

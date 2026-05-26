@@ -1,12 +1,12 @@
--- 1. Enable loader
+-- Enable loader
 vim.loader.enable()
 
--- 2. Leader keys
+-- Leader keys
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 vim.g.have_nerd_font = true
 
--- 3. Options
+-- Options
 -- Gutter
 vim.opt.number = true
 vim.opt.signcolumn = "yes"
@@ -80,7 +80,7 @@ if vim.fn.executable("rg") == 1 then
   vim.o.grepformat = "%f:%l:%c:%m"
 end
 
--- 4. Diagnostic configuration
+-- Diagnostic configuration
 vim.diagnostic.config({
   virtual_text = false,
   severity_sort = true,
@@ -95,7 +95,7 @@ vim.diagnostic.config({
   },
 })
 
--- 5. Filetype autocmds
+-- Filetype autocmds
 -- two-space indent overrides
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "lua", "html", "htmldjango", "json", "css", "javascript", "typescript", "terraform", "yaml", "toml" },
@@ -114,7 +114,7 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- 6. Global keymaps
+-- Global keymaps
 local map = vim.keymap.set
 
 -- Clear search highlight
@@ -168,7 +168,7 @@ map("n", "<leader>sr", function()
   end
 end, { desc = "Restore session for cwd" })
 
--- 7. LSP server configs and vim.lsp.enable()
+-- LSP server configs and vim.lsp.enable()
 vim.lsp.config["lua-language-server"] = {
   cmd = { "lua-language-server" },
   filetypes = { "lua" },
@@ -221,7 +221,7 @@ vim.lsp.config["basedpyright"] = {
 
 vim.lsp.enable({ "lua-language-server", "rust-analyzer", "ruff", "basedpyright" })
 
--- 8. LspAttach autocmd
+-- LspAttach autocmd
 local code_action_sign_group = "lsp-code-action"
 vim.fn.sign_define("LspCodeActionAvailable", { text = "+", texthl = "DiagnosticHint", numhl = "" })
 
@@ -317,7 +317,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
   end,
 })
 
--- 9. Helper functions (venv)
+-- Helper functions (venv)
 local uv = vim.uv
 
 function _G.set_unix_venv(venv_path)
@@ -350,7 +350,7 @@ function _G.set_windows_venv(venv_path)
   end
 end
 
--- 10. Plugin manager bootstrap
+-- Plugin manager bootstrap
 vim.pack.add({
   "https://github.com/saghen/blink.lib",
   "https://github.com/saghen/blink.cmp",
@@ -365,12 +365,13 @@ vim.pack.add({
   "https://github.com/neovim-treesitter/treesitter-parser-registry",
   "https://github.com/neovim-treesitter/nvim-treesitter",
   "https://github.com/sindrets/diffview.nvim",
+  "https://github.com/windwp/nvim-autopairs",
 })
 
--- 11. Plugin setup calls
--- 11.1 Put colorscheme config here
+-- Plugin setup calls
+-- Put colorscheme config here
 
--- 11.2 Blink.cmp
+-- Blink.cmp
 local blink = require("blink.cmp")
 blink.build():wait(60000)
 blink.setup({
@@ -398,7 +399,7 @@ blink.setup({
   fuzzy = { implementation = "prefer_rust_with_warning" },
 })
 
--- 11.3 Neo-tree
+-- Neo-tree
 require("neo-tree").setup({
   source_selector = { winbar = true, statusline = false, truncation_character = "…" },
   filesystem = { follow_current_file = { enabled = true } },
@@ -406,7 +407,7 @@ require("neo-tree").setup({
 vim.keymap.set("n", "<leader>e", "<cmd>Neotree<CR>", { desc = "Focus neo-tree" })
 vim.keymap.set("n", "<C-n>", "<cmd>Neotree toggle<CR>", { desc = "Toggle neo-tree" })
 
--- 11.4 Bufferline
+-- Bufferline
 local function setup_bufferline()
   require("bufferline").setup({
     options = {
@@ -442,7 +443,7 @@ else
   })
 end
 
--- 11.5 Snacks
+-- Snacks
 require("snacks").setup({
   bigfile = { enabled = true },
   picker = { enabled = true },
@@ -461,7 +462,7 @@ vim.keymap.set("n", "<leader>:", function()
   Snacks.picker.command_history()
 end, { desc = "Command History" })
 
--- 11.6 Gitsigns
+-- Gitsigns
 require("gitsigns").setup({
   on_attach = function(bufnr)
     local gs = require("gitsigns")
@@ -506,7 +507,7 @@ require("gitsigns").setup({
   end,
 })
 
--- 11.7 Conform
+-- Conform
 require("conform").setup({
   formatters_by_ft = {
     lua = { "stylua" },
@@ -538,14 +539,14 @@ vim.keymap.set("n", "<leader>fm", function()
   require("conform").format({ async = true })
 end, { desc = "Format buffer" })
 
--- 11.8 Diffview
+-- Diffview
 require("diffview").setup({
   view = { merge_tool = { layout = "diff3_mixed" } },
 })
 vim.keymap.set("n", "<leader>dv", "<cmd>DiffviewOpen<CR>", { desc = "Diffview open" })
 vim.keymap.set("n", "<leader>dh", "<cmd>DiffviewFileHistory<CR>", { desc = "Diffview file history" })
 
--- 11.9 Sessions
+-- Sessions
 local session_dir = vim.fn.stdpath("state") .. "/sessions"
 vim.fn.mkdir(session_dir, "p")
 
@@ -556,7 +557,10 @@ vim.api.nvim_create_autocmd("VimLeavePre", {
   end,
 })
 
--- 12. Treesitter FileType autocmd
+-- Autopairs
+require("nvim-autopairs").setup({})
+
+-- Treesitter FileType autocmd
 require("nvim-treesitter").setup({})
 
 local parsers = {
@@ -632,7 +636,7 @@ vim.api.nvim_create_autocmd("FileType", {
 
 vim.opt.foldlevelstart = 99
 
--- 13. GUI-specific blocks
+-- GUI-specific blocks
 if vim.g.neovide or vim.g.nvy == 1 then
   local is_mac = vim.uv.os_uname().sysname == "Darwin"
   local mod = is_mac and "D" or "C"
@@ -653,6 +657,6 @@ if vim.g.nvy == 1 then
   vim.o.guifont = "Hack Nerd Font:h10"
 end
 
--- 14. Colorscheme
+-- Colorscheme
 vim.o.background = "dark"
 vim.cmd.colorscheme("catppuccin")
