@@ -121,7 +121,28 @@ local map = vim.keymap.set
 map("n", "<Esc>", "<cmd>nohlsearch<CR>")
 
 -- Diagnostics
-map("n", "gl", vim.diagnostic.open_float, { desc = "Show line diagnostics" })
+local function show_line_diagnostics_or_hover()
+  local diagnostics = vim.diagnostic.get(0, { lnum = vim.api.nvim_win_get_cursor(0)[1] - 1 })
+  if #diagnostics > 0 then
+    vim.diagnostic.open_float(nil, { scope = "line" })
+    return
+  end
+  if next(vim.lsp.get_clients({ bufnr = 0 })) ~= nil then
+    vim.lsp.buf.hover()
+  end
+end
+
+local function diagnostic_jump(count)
+  return function()
+    vim.diagnostic.jump({ count = count })
+  end
+end
+
+map("n", "gh", show_line_diagnostics_or_hover, { desc = "Show diagnostics or hover" })
+map("n", "]d", diagnostic_jump(1), { desc = "Next diagnostic" })
+map("n", "[d", diagnostic_jump(-1), { desc = "Previous diagnostic" })
+map("n", "g]", diagnostic_jump(1), { desc = "Next diagnostic" })
+map("n", "g[", diagnostic_jump(-1), { desc = "Previous diagnostic" })
 map("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic location list" })
 
 -- New buffer
@@ -233,6 +254,50 @@ vim.api.nvim_create_autocmd("LspAttach", {
     end
 
     local grp = vim.api.nvim_create_augroup("lsp-buffer-" .. ev.buf, { clear = false })
+
+    local function bufmap(mode, lhs, rhs, desc)
+      vim.keymap.set(mode, lhs, rhs, { buffer = ev.buf, desc = desc })
+    end
+
+    local function lsp_picker_split(picker, split_cmd)
+      return function()
+        vim.cmd(split_cmd or "vsplit")
+        picker()
+      end
+    end
+
+    bufmap("n", "gd", function()
+      Snacks.picker.lsp_definitions()
+    end, "Go to definition")
+    bufmap("n", "gD", function()
+      Snacks.picker.lsp_declarations()
+    end, "Go to declaration")
+    bufmap("n", "gy", function()
+      Snacks.picker.lsp_type_definitions()
+    end, "Go to type definition")
+    bufmap("n", "gI", function()
+      Snacks.picker.lsp_implementations()
+    end, "Go to implementation")
+    bufmap("n", "gA", function()
+      Snacks.picker.lsp_references()
+    end, "Go to references")
+    bufmap("n", "gs", function()
+      Snacks.picker.lsp_symbols()
+    end, "Find symbols in file")
+    bufmap("n", "gS", function()
+      Snacks.picker.lsp_workspace_symbols()
+    end, "Find symbols in workspace")
+    bufmap("n", "cd", vim.lsp.buf.rename, "Rename symbol")
+    bufmap({ "n", "x" }, "g.", vim.lsp.buf.code_action, "Code actions")
+    bufmap("i", "<C-x><C-l>", function()
+      vim.api.nvim_feedkeys(vim.keycode("<Esc>"), "n", false)
+      vim.schedule(vim.lsp.buf.code_action)
+    end, "Code actions")
+    bufmap("n", "<C-w>gd", lsp_picker_split(Snacks.picker.lsp_definitions), "Go to definition in split")
+    bufmap("n", "<C-w>gD", lsp_picker_split(Snacks.picker.lsp_type_definitions), "Go to type definition in split")
+    bufmap("n", "<C-w>gy", lsp_picker_split(Snacks.picker.lsp_type_definitions), "Go to type definition in split")
+    bufmap("n", "<C-w>gI", lsp_picker_split(Snacks.picker.lsp_implementations), "Go to implementation in split")
+    bufmap("n", "<C-w>gA", lsp_picker_split(Snacks.picker.lsp_references), "Go to reference in split")
 
     -- Enable inlay hints if supported
     if client:supports_method("textDocument/inlayHint") then
@@ -375,7 +440,11 @@ vim.pack.add({
 local blink = require("blink.cmp")
 blink.build():wait(60000)
 blink.setup({
-  keymap = { preset = "enter" },
+  keymap = {
+    preset = "enter",
+    ["<C-x><C-o>"] = { "show", "show_documentation", "hide_documentation" },
+    ["<C-x><C-z>"] = { "cancel", "hide_documentation", "hide_signature" },
+  },
   appearance = {
     nerd_font_variant = "mono",
   },
@@ -449,18 +518,21 @@ require("snacks").setup({
   picker = { enabled = true },
 })
 
-vim.keymap.set("n", "<C-p>", function()
+map("n", "gf", function()
   Snacks.picker.smart()
-end, { desc = "Smart Find Files" })
-vim.keymap.set("n", "<leader>,", function()
+end, { desc = "Picker: files" })
+map("n", "gb", function()
   Snacks.picker.buffers()
-end, { desc = "Buffers" })
-vim.keymap.set("n", "<leader>/", function()
+end, { desc = "Picker: buffers" })
+map("n", "g/", function()
   Snacks.picker.grep()
-end, { desc = "Grep" })
-vim.keymap.set("n", "<leader>:", function()
+end, { desc = "Picker: grep" })
+map("n", "g<Space>", function()
+  Snacks.picker.resume()
+end, { desc = "Picker: resume" })
+map("n", "g:", function()
   Snacks.picker.command_history()
-end, { desc = "Command History" })
+end, { desc = "Picker: command history" })
 
 -- Gitsigns
 require("gitsigns").setup({
@@ -470,11 +542,25 @@ require("gitsigns").setup({
       vim.keymap.set(mode, l, r, { buffer = bufnr, desc = desc })
     end
 
+    local function current_git_change_state()
+      local cache = require("gitsigns.cache").cache[bufnr]
+      if not cache then
+        return nil
+      end
+      if cache:get_hunk(nil, true, false) then
+        return "unstaged"
+      end
+      if cache:get_hunk(nil, true, true) then
+        return "staged"
+      end
+      return nil
+    end
+
     map("n", "]c", function()
       if vim.wo.diff then
         vim.cmd.normal({ "]c", bang = true })
       else
-        gs.nav_hunk("next")
+        gs.nav_hunk("next", { target = "all" })
       end
     end, "Jump to next git change")
 
@@ -482,9 +568,39 @@ require("gitsigns").setup({
       if vim.wo.diff then
         vim.cmd.normal({ "[c", bang = true })
       else
-        gs.nav_hunk("prev")
+        gs.nav_hunk("prev", { target = "all" })
       end
     end, "Jump to previous git change")
+
+    map("n", "do", function()
+      if vim.wo.diff then
+        vim.cmd.normal({ "do", bang = true })
+      else
+        gs.preview_hunk()
+      end
+    end, "Preview git change")
+    map("n", "dO", gs.stage_hunk, "Toggle staged hunk")
+    map("n", "du", function()
+      if current_git_change_state() == "unstaged" then
+        gs.stage_hunk()
+      end
+      gs.nav_hunk("next", { target = "unstaged" })
+    end, "Stage hunk and next")
+    map("n", "dU", function()
+      if current_git_change_state() ~= "staged" then
+        vim.notify("No staged change at cursor", vim.log.levels.WARN)
+        return
+      end
+      gs.stage_hunk()
+      gs.nav_hunk("next", { target = "staged" })
+    end, "Unstage hunk and next")
+    map("n", "dp", function()
+      if vim.wo.diff then
+        vim.cmd.normal({ "dp", bang = true })
+      else
+        gs.reset_hunk()
+      end
+    end, "Restore git change")
 
     map("v", "<leader>hs", function()
       gs.stage_hunk({ vim.fn.line("."), vim.fn.line("v") })
