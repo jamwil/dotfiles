@@ -19,7 +19,7 @@ export const dangerousPatterns: RegExp[] = [
     /\bdd\b/i,
     /\b(?:mkfs|fdisk|parted|sfdisk|gdisk)\b/i,
     /\b(?:shred|wipe)\b/i,
-    /\b(reboot|shutdown|poweroff|halt|init)\b/i,
+    /(?:^|[\s;&|])(?:\/(?:usr\/)?sbin\/)?(?:reboot|shutdown|poweroff|halt|init)(?=\s|$)/i,
     /(?:\bdd\b.*\bof=\/dev\/|>\s*\/dev\/|>>\s*\/dev\/|>\s*\/etc\/|>\s*\/proc\/|>\s*\/sys\/)/i,
     /\b(?:curl|wget|fetch)\b.*\|\s*(?:sh|bash|zsh|sudo)/i,
     /\bgit\b.*\b(reset\s+--hard|clean\s+-fdx|checkout\s+-f)\b/i,

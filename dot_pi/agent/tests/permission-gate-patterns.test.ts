@@ -27,6 +27,16 @@ const testCases = [
     },
     { input: "git status", expectMatch: false, category: "Git status" },
     { input: "docker ps", expectMatch: false, category: "Docker list" },
+    {
+        input: "rg --files | rg '(^|/)(zed_vim\\.md|init\\.lua)$'",
+        expectMatch: false,
+        category: "Ripgrep pattern containing init.lua",
+    },
+    {
+        input: "nvim --headless -u init.lua '+qa'",
+        expectMatch: false,
+        category: "Neovim using init.lua",
+    },
 
     // Network fetch - should match
     {
@@ -59,6 +69,12 @@ const testCases = [
     { input: "rm -rf /tmp/foo", expectMatch: true, category: "Recursive rm" },
     { input: "sudo apt update", expectMatch: true, category: "Sudo command" },
     { input: "shutdown -h now", expectMatch: true, category: "Shutdown" },
+    { input: "init 0", expectMatch: true, category: "Init command" },
+    {
+        input: "/sbin/init 6",
+        expectMatch: true,
+        category: "Absolute init command",
+    },
     {
         input: "mkfs.ext4 /dev/sdb1",
         expectMatch: true,
