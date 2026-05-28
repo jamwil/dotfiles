@@ -11,8 +11,8 @@ import {
     highlightCode,
     rawKeyHint,
     type Theme,
-} from "@jamwil/pi"
-import { Container, Text } from "@jamwil/pi-tui"
+} from "@jamwil/pi-coding-agent"
+import { Container, Text } from "@earendil-works/pi-tui"
 import { Type } from "@sinclair/typebox"
 
 const API_URL = "https://mcp.grep.app/"
