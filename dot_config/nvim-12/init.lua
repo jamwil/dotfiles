@@ -320,7 +320,24 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
         local bufnr = ev.buf
         local params = vim.lsp.util.make_range_params(0, client.offset_encoding)
-        params.context = { diagnostics = vim.diagnostic.get(bufnr) }
+        if not params or not params.range then
+          return
+        end
+
+        local lnum = vim.api.nvim_win_get_cursor(0)[1] - 1
+        -- CodeActionContext expects LSP Diagnostic objects. vim.diagnostic.get()
+        -- returns vim.Diagnostic objects, so use the original LSP payloads.
+        params.context = {
+          diagnostics = vim
+            .iter(vim.diagnostic.get(bufnr, { lnum = lnum }))
+            :map(function(diagnostic)
+              return diagnostic.user_data and diagnostic.user_data.lsp
+            end)
+            :filter(function(diagnostic)
+              return diagnostic and diagnostic.range
+            end)
+            :totable(),
+        }
 
         vim.lsp.buf_request_all(bufnr, "textDocument/codeAction", params, function(results)
           if not vim.api.nvim_buf_is_valid(bufnr) then
@@ -353,7 +370,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
         end)
       end
 
-      vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+      vim.api.nvim_create_autocmd({ "CursorHold" }, {
         group = grp,
         buffer = ev.buf,
         callback = update_code_action_sign,
