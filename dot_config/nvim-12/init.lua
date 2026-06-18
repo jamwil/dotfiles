@@ -702,6 +702,8 @@ local parsers = {
   "css",
   "diff",
   "ecma",
+  "hcl",
+  "html_tags",
   "html",
   "htmldjango",
   "javascript",
