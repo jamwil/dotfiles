@@ -171,6 +171,21 @@ Sessions are automatically saved on exit.
 
 ---
 
+## Surrounds (`nvim-surround`)
+
+| Key / Pattern | Action |
+| ------------- | ------ |
+| `ys{motion}{char}` | Add surround using a motion/text object |
+| `S{char}` | Surround visual selection |
+| `cs{old}{new}` | Change surround |
+| `ds{char}` | Delete surround |
+| `ysiw)` | Surround inner word: `word` → `(word)` |
+| `ysa")` | Surround around quotes: `"word"` → `("word")` |
+| `ysiwf` | Surround inner word with function: `word` → `func(word)` |
+| `Sf` | Surround visual selection with function |
+
+---
+
 ## Notes
 
 - `gh`, `gd`, `gD`, `gy`, `gI`, `gA`, `gs`, `gS`, and `g.` are meant to mirror
