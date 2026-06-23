@@ -448,6 +448,7 @@ vim.pack.add({
   "https://github.com/neovim-treesitter/nvim-treesitter",
   "https://github.com/sindrets/diffview.nvim",
   "https://github.com/windwp/nvim-autopairs",
+  "https://github.com/kylechui/nvim-surround",
 })
 
 -- Plugin setup calls
