@@ -138,12 +138,40 @@ local function diagnostic_jump(count)
   end
 end
 
+local function buffer_supports_inlay_hints(bufnr)
+  for _, client in ipairs(vim.lsp.get_clients({ bufnr = bufnr })) do
+    if client:supports_method("textDocument/inlayHint") then
+      return true
+    end
+  end
+  return false
+end
+
+local function default_inlay_hints_enabled(bufnr)
+  return vim.bo[bufnr].filetype ~= "python"
+end
+
+local function toggle_inlay_hints()
+  local bufnr = vim.api.nvim_get_current_buf()
+  if not buffer_supports_inlay_hints(bufnr) then
+    vim.notify("No inlay hints available for current buffer", vim.log.levels.WARN)
+    return
+  end
+
+  local enabled = not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr })
+  vim.b[bufnr].inlay_hints_enabled = enabled
+  vim.lsp.inlay_hint.enable(enabled, { bufnr = bufnr })
+end
+
+vim.api.nvim_create_user_command("ToggleInlayHints", toggle_inlay_hints, { desc = "Toggle LSP inlay hints" })
+
 map("n", "gh", show_line_diagnostics_or_hover, { desc = "Show diagnostics or hover" })
 map("n", "]d", diagnostic_jump(1), { desc = "Next diagnostic" })
 map("n", "[d", diagnostic_jump(-1), { desc = "Previous diagnostic" })
 map("n", "g]", diagnostic_jump(1), { desc = "Next diagnostic" })
 map("n", "g[", diagnostic_jump(-1), { desc = "Previous diagnostic" })
 map("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic location list" })
+map("n", "<leader>th", "<cmd>ToggleInlayHints<CR>", { desc = "Toggle inlay hints" })
 
 -- New buffer
 map("n", "<leader>n", "<cmd>enew<CR>", { desc = "New buffer" })
@@ -301,7 +329,12 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
     -- Enable inlay hints if supported
     if client:supports_method("textDocument/inlayHint") then
-      vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf })
+      local enabled = vim.b[ev.buf].inlay_hints_enabled
+      if enabled == nil then
+        enabled = default_inlay_hints_enabled(ev.buf)
+        vim.b[ev.buf].inlay_hints_enabled = enabled
+      end
+      vim.lsp.inlay_hint.enable(enabled, { bufnr = ev.buf })
     end
 
     -- Subtle sign when code actions are available at the cursor
