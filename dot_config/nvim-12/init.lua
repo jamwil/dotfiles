@@ -138,12 +138,41 @@ local function diagnostic_jump(count)
   end
 end
 
+local function buffer_supports_inlay_hints(bufnr)
+  for _, client in ipairs(vim.lsp.get_clients({ bufnr = bufnr })) do
+    if client:supports_method("textDocument/inlayHint") then
+      return true
+    end
+  end
+  return false
+end
+
+local function toggle_inlay_hints()
+  local enabled = not (vim.g.inlay_hints_enabled or false)
+  vim.g.inlay_hints_enabled = enabled
+
+  local any_supported = false
+  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_valid(bufnr) and buffer_supports_inlay_hints(bufnr) then
+      any_supported = true
+      vim.lsp.inlay_hint.enable(enabled, { bufnr = bufnr })
+    end
+  end
+
+  if not any_supported then
+    vim.notify("No inlay hints available in any buffer", vim.log.levels.WARN)
+  end
+end
+
+vim.api.nvim_create_user_command("ToggleInlayHints", toggle_inlay_hints, { desc = "Toggle LSP inlay hints" })
+
 map("n", "gh", show_line_diagnostics_or_hover, { desc = "Show diagnostics or hover" })
 map("n", "]d", diagnostic_jump(1), { desc = "Next diagnostic" })
 map("n", "[d", diagnostic_jump(-1), { desc = "Previous diagnostic" })
 map("n", "g]", diagnostic_jump(1), { desc = "Next diagnostic" })
 map("n", "g[", diagnostic_jump(-1), { desc = "Previous diagnostic" })
 map("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic location list" })
+map("n", "<leader>th", "<cmd>ToggleInlayHints<CR>", { desc = "Toggle inlay hints" })
 
 -- New buffer
 map("n", "<leader>n", "<cmd>enew<CR>", { desc = "New buffer" })
@@ -299,9 +328,13 @@ vim.api.nvim_create_autocmd("LspAttach", {
     bufmap("n", "<C-w>gI", lsp_picker_split(Snacks.picker.lsp_implementations), "Go to implementation in split")
     bufmap("n", "<C-w>gA", lsp_picker_split(Snacks.picker.lsp_references), "Go to reference in split")
 
-    -- Enable inlay hints if supported
-    if client:supports_method("textDocument/inlayHint") then
-      vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf })
+    -- Inlay hints: apply global toggle state to new buffers
+    if client:supports_method("textDocument/inlayHint") and vim.g.inlay_hints_enabled then
+      vim.defer_fn(function()
+        if vim.api.nvim_buf_is_valid(ev.buf) then
+          vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf })
+        end
+      end, 0)
     end
 
     -- Subtle sign when code actions are available at the cursor
@@ -448,6 +481,7 @@ vim.pack.add({
   "https://github.com/neovim-treesitter/nvim-treesitter",
   "https://github.com/sindrets/diffview.nvim",
   "https://github.com/windwp/nvim-autopairs",
+  "https://github.com/kylechui/nvim-surround",
 })
 
 -- Plugin setup calls

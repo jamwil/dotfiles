@@ -41,17 +41,18 @@ Custom keybindings for this config.
 
 ## LSP (`g` family, LSP-attached buffers only)
 
-| Key  | Action                  |
-| ---- | ----------------------- |
-| `gd` | Go to definition        |
-| `gD` | Go to declaration       |
-| `gy` | Go to type definition   |
-| `gI` | Go to implementation    |
-| `gA` | Find references         |
-| `gs` | Symbols in current file |
-| `gS` | Symbols in workspace    |
-| `cd` | Rename symbol           |
-| `g.` | Code actions            |
+| Key          | Action                  |
+| ------------ | ----------------------- |
+| `gd`         | Go to definition        |
+| `gD`         | Go to declaration       |
+| `gy`         | Go to type definition   |
+| `gI`         | Go to implementation    |
+| `gA`         | Find references         |
+| `gs`         | Symbols in current file |
+| `gS`         | Symbols in workspace    |
+| `cd`         | Rename symbol           |
+| `g.`         | Code actions            |
+| `<leader>th` | Toggle inlay hints      |
 
 ### LSP in split
 
@@ -168,6 +169,21 @@ Sessions are automatically saved on exit.
 | --- | ------------------------------- |
 | `<` | Indent left and keep selection  |
 | `>` | Indent right and keep selection |
+
+---
+
+## Surrounds (`nvim-surround`)
+
+| Key / Pattern      | Action                                                   |
+| ------------------ | -------------------------------------------------------- |
+| `ys{motion}{char}` | Add surround using a motion/text object                  |
+| `S{char}`          | Surround visual selection                                |
+| `cs{old}{new}`     | Change surround                                          |
+| `ds{char}`         | Delete surround                                          |
+| `ysiw)`            | Surround inner word: `word` → `(word)`                   |
+| `ysa")`            | Surround around quotes: `"word"` → `("word")`            |
+| `ysiwf`            | Surround inner word with function: `word` → `func(word)` |
+| `Sf`               | Surround visual selection with function                  |
 
 ---
 
