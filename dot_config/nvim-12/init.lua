@@ -147,20 +147,21 @@ local function buffer_supports_inlay_hints(bufnr)
   return false
 end
 
-local function default_inlay_hints_enabled(bufnr)
-  return vim.bo[bufnr].filetype ~= "python"
-end
-
 local function toggle_inlay_hints()
-  local bufnr = vim.api.nvim_get_current_buf()
-  if not buffer_supports_inlay_hints(bufnr) then
-    vim.notify("No inlay hints available for current buffer", vim.log.levels.WARN)
-    return
+  local enabled = not (vim.g.inlay_hints_enabled or false)
+  vim.g.inlay_hints_enabled = enabled
+
+  local any_supported = false
+  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_valid(bufnr) and buffer_supports_inlay_hints(bufnr) then
+      any_supported = true
+      vim.lsp.inlay_hint.enable(enabled, { bufnr = bufnr })
+    end
   end
 
-  local enabled = not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr })
-  vim.b[bufnr].inlay_hints_enabled = enabled
-  vim.lsp.inlay_hint.enable(enabled, { bufnr = bufnr })
+  if not any_supported then
+    vim.notify("No inlay hints available in any buffer", vim.log.levels.WARN)
+  end
 end
 
 vim.api.nvim_create_user_command("ToggleInlayHints", toggle_inlay_hints, { desc = "Toggle LSP inlay hints" })
@@ -327,14 +328,13 @@ vim.api.nvim_create_autocmd("LspAttach", {
     bufmap("n", "<C-w>gI", lsp_picker_split(Snacks.picker.lsp_implementations), "Go to implementation in split")
     bufmap("n", "<C-w>gA", lsp_picker_split(Snacks.picker.lsp_references), "Go to reference in split")
 
-    -- Enable inlay hints if supported
-    if client:supports_method("textDocument/inlayHint") then
-      local enabled = vim.b[ev.buf].inlay_hints_enabled
-      if enabled == nil then
-        enabled = default_inlay_hints_enabled(ev.buf)
-        vim.b[ev.buf].inlay_hints_enabled = enabled
-      end
-      vim.lsp.inlay_hint.enable(enabled, { bufnr = ev.buf })
+    -- Inlay hints: apply global toggle state to new buffers
+    if client:supports_method("textDocument/inlayHint") and vim.g.inlay_hints_enabled then
+      vim.defer_fn(function()
+        if vim.api.nvim_buf_is_valid(ev.buf) then
+          vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf })
+        end
+      end, 0)
     end
 
     -- Subtle sign when code actions are available at the cursor
