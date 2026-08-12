@@ -7,7 +7,7 @@
  * Requires CONTEXT7_API_KEY environment variable.
  */
 
-import { type ExtensionAPI, rawKeyHint } from "@jamwil/pi-coding-agent"
+import { type ExtensionAPI, rawKeyHint } from "@earendil-works/pi-coding-agent"
 import { Container, Text } from "@earendil-works/pi-tui"
 import { Type } from "@sinclair/typebox"
 

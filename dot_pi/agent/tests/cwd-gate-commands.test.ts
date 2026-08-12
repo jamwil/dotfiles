@@ -88,6 +88,26 @@ const commands = [
         expectSuspicious: ["/etc/passwd"],
         description: "Escaped quoted strings do not hide real suspicious paths",
     },
+    {
+        cmd: "cat $HOME/secrets.txt",
+        expectSuspicious: ["$HOME/secrets.txt"],
+        description: "$HOME env-var path reference is gated (should warn)",
+    },
+    {
+        cmd: "cat ${HOME}/secrets.txt",
+        expectSuspicious: ["${HOME}/secrets.txt"],
+        description: "${HOME} braced env-var path reference is gated (should warn)",
+    },
+    {
+        cmd: "rm -rf $HOME",
+        expectSuspicious: ["$HOME"],
+        description: "Bare $HOME reference is gated (should warn)",
+    },
+    {
+        cmd: "echo $HOMEVAR/file",
+        expectSuspicious: [],
+        description: "$HOMEVAR is a distinct variable, not $HOME (no false positive)",
+    },
 ]
 
 console.log("Testing cwd-gate bash command pattern detection\n")

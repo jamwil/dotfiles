@@ -3,8 +3,8 @@
     "private": true,
     "type": "module",
     "dependencies": {
-        "@jamwil/pi": "latest",
-        "@jamwil/pi-tui": "latest",
+        "@earendil-works/pi-coding-agent": "latest",
+        "@earendil-works/pi-tui": "latest",
         "@sinclair/typebox": "^0.34.33"
     }
 }

@@ -285,6 +285,22 @@ export type SuspiciousPath = { original: string; resolved: string; syntax: PathS
  * Extract tokens from a bash command that look like paths outside of trusted
  * roots. Returns an array of suspicious path entries.
  */
+/**
+ * Expand leading `$HOME` / `${HOME}` references to the bash home directory.
+ *
+ * Bash expands these env-var forms before resolving the path, so the gate
+ * must do the same or commands like `cat $HOME/secrets.txt` slip past the
+ * `~`-only detection in `normalizeBashPathArg` / `looksLikePossiblyDangerousBashPathToken`.
+ *
+ * `${HOME}` may be followed by anything (e.g. `${HOME}foo`), while `$HOME`
+ * only matches when followed by `/` or end-of-token so `$HOMEVAR` is left intact
+ * (it refers to a different variable).
+ */
+function expandBashHomeEnvVar(token: string): string {
+    const home = getBashHomeDir()
+    return token.replace(/^\$\{HOME\}/, home).replace(/^\$HOME(?=\/|$)/, home)
+}
+
 export function extractSuspiciousPathsFromCommand(
     command: string,
     cwd: string,
@@ -297,9 +313,15 @@ export function extractSuspiciousPathsFromCommand(
         // Strip surrounding quotes and common trailing punctuation.
         const cleanToken = token.replace(/^['"]|['"]$/g, "").replace(/[;,)+\]]+$/g, "")
 
-        if (!looksLikePossiblyDangerousBashPathToken(cleanToken)) continue
+        if (!cleanToken) continue
 
-        const { outside, resolved } = isOutsideTrustedRootsForBash(cwd, cleanToken, trustedRoots)
+        // Expand `$HOME` / `${HOME}` so env-var path references are gated the
+        // same way as `~`-prefixed ones.
+        const expanded = expandBashHomeEnvVar(cleanToken)
+
+        if (!looksLikePossiblyDangerousBashPathToken(expanded)) continue
+
+        const { outside, resolved } = isOutsideTrustedRootsForBash(cwd, expanded, trustedRoots)
         if (outside) {
             suspicious.push({ original: cleanToken, resolved, syntax: "bash" })
         }

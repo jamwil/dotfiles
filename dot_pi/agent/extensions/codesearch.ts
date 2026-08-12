@@ -11,7 +11,7 @@ import {
     highlightCode,
     rawKeyHint,
     type Theme,
-} from "@jamwil/pi-coding-agent"
+} from "@earendil-works/pi-coding-agent"
 import { Container, Text } from "@earendil-works/pi-tui"
 import { Type } from "@sinclair/typebox"
 
