@@ -120,6 +120,10 @@ local map = vim.keymap.set
 -- Clear search highlight
 map("n", "<Esc>", "<cmd>nohlsearch<CR>")
 
+-- Natural up/down movement
+map({ "n", "v" }, "j", "gj", { desc = "Move down by display line" })
+map({ "n", "v" }, "k", "gk", { desc = "Move up by display line" })
+
 -- Diagnostics
 local function show_line_diagnostics_or_hover()
   local diagnostics = vim.diagnostic.get(0, { lnum = vim.api.nvim_win_get_cursor(0)[1] - 1 })
