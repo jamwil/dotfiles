@@ -1,0 +1,17 @@
+{
+  "permission": {
+    "*": "ask",
+    "path": {
+      "*.env*": "deny",
+      "*.ssh/*": "deny"
+    },
+    "bash": {
+      "*": "ask",
+      "rm -rf *": "deny",
+      "sudo *": "ask",
+      "ls *": "allow",
+      "rg *": "allow"
+    },
+    "external_directory": "ask"
+  }
+}
