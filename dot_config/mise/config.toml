@@ -1,0 +1,9 @@
+[settings.status]
+show_env = true
+show_tools = true
+
+[tools]
+node = "lts"
+npm = "latest"
+python = "3"
+uv = "latest"
