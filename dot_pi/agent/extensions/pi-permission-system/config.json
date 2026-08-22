@@ -10,8 +10,18 @@
       "rm -rf *": "deny",
       "sudo *": "ask",
       "ls *": "allow",
-      "rg *": "allow"
+      "rg *": "allow",
+      "fd *": "allow",
+      "find *": "allow",
+      "sort *": "allow",
+      "head *": "allow",
+      "git diff *": "allow",
+      "git log *": "allow",
+      "git status *": "allow"
     },
+    "read": "allow",
+    "write": "allow",
+    "edit": "allow",
     "external_directory": "ask"
   }
 }
