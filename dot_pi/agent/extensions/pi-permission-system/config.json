@@ -7,14 +7,15 @@
     },
     "bash": {
       "*": "ask",
-      "rm -rf *": "deny",
-      "sudo *": "ask",
       "ls *": "allow",
       "rg *": "allow",
+      "grep *": "allow",
       "fd *": "allow",
       "find *": "allow",
       "sort *": "allow",
       "head *": "allow",
+      "cat *": "allow",
+      "echo *": "allow",
       "git diff *": "allow",
       "git log *": "allow",
       "git status *": "allow"
