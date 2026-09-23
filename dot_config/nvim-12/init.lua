@@ -486,6 +486,7 @@ vim.pack.add({
   "https://github.com/sindrets/diffview.nvim",
   "https://github.com/windwp/nvim-autopairs",
   "https://github.com/kylechui/nvim-surround",
+  "https://github.com/WTFox/luna.nvim",
 })
 
 -- Plugin setup calls
@@ -834,4 +835,4 @@ end
 
 -- Colorscheme
 vim.o.background = "dark"
-vim.cmd.colorscheme("catppuccin")
+vim.cmd.colorscheme("luna")
