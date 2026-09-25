@@ -18,7 +18,12 @@
       "echo *": "allow",
       "git diff *": "allow",
       "git log *": "allow",
-      "git status *": "allow"
+      "git status *": "allow",
+      "git ls-files *": "allow",
+      "printf *": "allow",
+      "uv run ruff *": "allow",
+      "ruff *": "allow",
+      "true": "allow"
     },
     "read": "allow",
     "write": "allow",
